@@ -9,7 +9,8 @@
 #define strings_hpp
 
 #include <stdio.h>
+#include <string>
 
 #endif /* strings_hpp */
 
-int square_digits(int num);
+std::string alphabet_position(const std::string &text);

@@ -6,44 +6,28 @@
 //
 
 #include "strings.hpp"
-#include <vector>
-#include <cmath>
 #include <string>
+#include <cctype>
+#include <sstream>
 
-int square_digits(int num) {
-    int result = 0;
-    int remain = num;
-    std::vector<int> stack;
-    while (remain > 0) {
-        stack.push_back(pow(remain % 10, 2));
-        remain /= 10;
-    }
-    for (; !stack.empty(); stack.pop_back()) {
-        result *= stack.back() > 10 ? 100 : 10;
-        result += stack.back();
-    }
-    return result;
-}
-
-int square_digits_second(int num) {
-    int result = 0;
-    int mult = 1;
-    while (num > 0) {
-        int d = num % 10;
-        result += mult * d * d;
-        mult *= d > 3 ? 100 : 10;
-        num /= 10;
+std::string alphabet_position(const std::string &text) {
+    std::string result = "";
+    for(char c: text) {
+        int pos = tolower(c) - 'a';
+        if (pos >= 0 && pos < 26) { // std::isalpha
+            if (result.length() > 0) {
+                result += " ";
+            }
+            result += std::to_string(pos + 1);
+        }
     }
     return result;
-}
+};
 
-int square_digits_third(int num) {
-    std::string s = std::to_string(num);
-    std::string ans;
-    for(char c: s){
-        int i = c - '0';
-        ans += std::to_string(i * i);
-    }
-    return std::stoi(ans);
+std::string alphabet_position_bp(const std::string &s) {
+  std::stringstream ss;
+  for (auto &x : s) if (std::isalpha(x)) ss << (x | 32) - 96 << ' ';
+  std::string r = ss.str();
+  if (r.size()) r.pop_back();
+  return r;
 }
-
