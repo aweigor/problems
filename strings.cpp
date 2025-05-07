@@ -25,9 +25,17 @@ std::string alphabet_position(const std::string &text) {
 };
 
 std::string alphabet_position_bp(const std::string &s) {
-  std::stringstream ss;
-  for (auto &x : s) if (std::isalpha(x)) ss << (x | 32) - 96 << ' ';
-  std::string r = ss.str();
-  if (r.size()) r.pop_back();
-  return r;
+    std::stringstream ss;
+    for (auto &x : s) if (std::isalpha(x)) ss << (x | 32) - 96 << ' ';
+    std::string r = ss.str();
+    if (r.size()) r.pop_back();
+    return r;
+}
+
+std::string duplicate_encoder(const std::string& word){
+    std::string r = "";
+    int map[128] = {};
+    for (auto &c : word) map[tolower(c)]++;
+    for (auto &c : word) r += map[tolower(c)] > 1 ? ")" : "(";
+    return r;
 }

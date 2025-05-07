@@ -14,3 +14,4 @@
 #endif /* strings_hpp */
 
 std::string alphabet_position(const std::string &text);
+std::string duplicate_encoder(const std::string& word);
