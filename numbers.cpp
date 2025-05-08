@@ -47,3 +47,11 @@ int square_digits_third(int num) {
     }
     return std::stoi(ans);
 }
+
+void convertToBinary(uint64_t n, std::vector<uint64_t> &s)
+{
+    if (n / 2 != 0) {
+        convertToBinary(n / 2, s);
+    }
+    s.push_back(n % 2);
+}

@@ -6,9 +6,11 @@
 //
 
 #include "strings.hpp"
+#include "numbers.hpp"
 #include <string>
 #include <cctype>
 #include <sstream>
+#include <format>
 
 std::string alphabet_position(const std::string &text) {
     std::string result = "";
@@ -39,3 +41,31 @@ std::string duplicate_encoder(const std::string& word){
     for (auto &c : word) r += map[tolower(c)] > 1 ? ")" : "(";
     return r;
 }
+
+/**
+ Adds two integers and returns binary string as result
+ **/
+std::string add_binary(uint64_t a, uint64_t b) {
+    std::vector<uint64_t> stack;
+    convertToBinary(a + b, stack);
+    std::string result;
+    for(const uint64_t& i : stack)
+        result += std::to_string(i);
+    return result;
+}
+
+std::string add_binary_bp1(std::uint64_t a, std::uint64_t b) {
+  return std::format("{:b}", a + b);
+};
+
+std::string add_binary_bp2(uint64_t a, uint64_t b) {
+    a += b;
+    std::string output;
+
+    do {
+        output = std::to_string(a % 2) + output;
+        a /= 2;
+    } while(a > 0);
+
+    return output;
+};
