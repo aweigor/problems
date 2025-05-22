@@ -21,3 +21,4 @@ int multiples35(int number);
 int multiples35_slow(int number);
 std::string uint32_to_ip(uint32_t ip);
 std::string rgb_to_hex(int r, int g, int b);
+uint32_t partitions(uint32_t n);

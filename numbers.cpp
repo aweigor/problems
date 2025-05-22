@@ -197,3 +197,126 @@ std::string rgb_to_hex_bp(int r, int g, int b)
 {
     return std::format("{:02X}{:02X}{:02X}", std::clamp(r, 0, 255), std::clamp(g, 0, 255), std::clamp(b, 0, 255));
 }
+
+std::vector<uint32_t> find_pentagonals(uint32_t max_n) {
+    std::vector<uint32_t> result{1, 2};
+    int i = 2;
+    while (result.back() < max_n) {
+        result.push_back(i * (3 * i - 1) / 2);
+        result.push_back(-i * (3 * -i - 1) / 2);
+        i++;
+    }
+    return result;
+}
+
+typedef std::pair<int, uint32_t> part_n;
+uint32_t find_partitions(uint32_t n, std::vector<uint32_t> const &pentagonal) {
+    static std::vector<part_n> partitions{{0, 1}};
+    if (n < 0)
+        return 1;
+    uint32_t result = 0;
+    for (int i = 0; pentagonal[i] <= n; i++) {
+        int pn = n - pentagonal[i];
+        int pk = i % 4  > 1 ? -1 : 1;
+        auto it = std::find_if(partitions.begin(), partitions.end(),
+                      [&](const part_n& pair) { return pair.first == pn; });
+        if (it == partitions.end()) {
+            uint32_t p = find_partitions(pn, pentagonal);
+            partitions.push_back({pn, p});
+            result += pk * p;
+        } else {
+            result += pk * (*it).second;
+        }
+    }
+    return result;
+}
+
+uint32_t partitions(uint32_t n) {
+    std::vector<uint32_t> pentagonal = find_pentagonals(n);
+    uint32_t result = find_partitions(n, pentagonal);
+    return result;
+}
+
+uint32_t partitions_approx(uint32_t n) {
+    uint32_t result = 1 / (4 * n * sqrt(3)) * exp(M_PI * sqrt((2 * n) / 3));
+    return result;
+}
+/**
+uint32_t partitions_min1(uint32_t n) {
+   std::vector<unsigned long long int> vector(n + 1, 0);
+
+ 
+    vector[0] = 1;
+    for (int i = 1; i <= n; i++)
+    {
+        for (int j = i; j <= n; j++)
+        {
+            vector[j] += vector[j - i];
+        }
+    }
+
+    return vector[n];
+}
+
+uint32_t partitions_min3(uint32_t n) {
+    std::vector<int> partitions(n + 1, 0);
+    partitions[0] = 1;
+
+    for (int i = 1; i <= n; ++i)
+        for (int j = i; j <= n; ++j)
+            partitions[j] += partitions[j - i];
+
+    return partitions[n];
+}
+
+
+uint32_t partitionsRev(uint32_t n, uint32_t k) {
+    if(n==1 || k==1)  return 1;
+    
+    if(n<=k)  return partitionsRev(n,n-1)+1;
+    
+    return partitionsRev(n,k-1)+partitionsRev(n-k,k);
+    }
+
+
+uint32_t partitions_min2(uint32_t n) {
+    return partitionsRev(n, n);
+}
+**/
+/**
+vector<uint32_t> pentagonals;
+
+uint32_t pentagonal(uint32_t n) {
+  if (n >= pentagonals.size()) {
+    for (uint32_t i = pentagonals.size(); i <= n; ++i) {
+      int32_t k = (i + 1) / 2;
+      if (i % 2 == 0) {
+        k = -k;
+      }
+      pentagonals.push_back((3 * k * k - k) / 2);
+    }
+  }
+  return pentagonals[n];
+}
+
+vector<uint32_t> ps{1, 1};
+
+uint32_t partitions(uint32_t n) {
+  if (n >= ps.size()) ps.resize(n + 1, 0);
+  if (ps[n] == 0) {
+    int32_t res = 0;
+    for (uint32_t i = 1; i <= n; ++i) {
+      auto pent = pentagonal(i);
+      auto prev = ((int32_t) n) - ((int32_t) pent);
+      if (prev < 0) break;
+      int32_t p = partitions(prev);
+      if (i % 4 == 0 || i % 4 == 3) {
+        p = -p;
+      }
+      res += p;
+    }
+    ps[n] = res;
+  }
+  return ps[n];
+}
+**/
