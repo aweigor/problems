@@ -15,3 +15,4 @@
 
 
 bool path_finder(std::string maze);
+int knight(std::string start, std::string finish);
