@@ -320,3 +320,21 @@ uint32_t partitions(uint32_t n) {
   return ps[n];
 }
 **/
+
+
+bool isPrime(int num) {
+    if (num % 2 == 0)
+      return false;
+    int n = num / 2;
+    int m = n / 2;
+    for (int i = n; i > m; --i) {
+        int f = i;
+        while (f != 1 && f % 2 != 0) {
+            if (num % f == 0) {
+                return false;
+            }
+            f /= 2;
+        }
+    }
+    return true;
+}
