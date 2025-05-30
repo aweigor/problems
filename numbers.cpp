@@ -15,6 +15,9 @@
 #include <iomanip>
 #include <algorithm>
 #include <format>
+#include <numeric>
+
+#define ull unsigned long long
 
 int square_digits(int num) {
     int result = 0;
@@ -354,4 +357,74 @@ bool isPrime6(int num) {
             return false;
     }
     return true;
+}
+
+void seal(std::vector<unsigned long long>& arr, size_t i) {
+    if (i < 0 || i > arr.size())
+        return;
+    unsigned long long x = arr[i];
+    while (i > 0 && arr[i - 1] > x) {
+        arr[i] = arr[i - 1]; --i;
+    }
+    arr[i] = x;
+}
+
+
+
+unsigned long long smallest_sum(const std::vector<unsigned long long>& arr)
+{
+    std::vector<unsigned long long> copy(arr);
+    
+    size_t s = copy.size();
+    size_t i = 0;
+    
+    if (s == 1) return copy[0];
+    if (s == 0) return 0;
+    
+    while (i < s - 1)
+    {
+        seal(copy, ++i);
+    }
+    
+    while(i > 0)
+    {
+        if (copy[i - 1] == 0)
+            break;
+        if (copy[i] > copy[i - 1]) {
+            copy[i] = copy[i] - copy[i - 1];
+            seal(copy, i);
+            i = s - 1;
+        } else {
+            --i;
+        }
+    }
+    
+    return std::reduce(copy.begin(), copy.end());
+}
+
+ull gcd(ull a, ull b){
+    if (a==0)
+        return b;
+    return gcd(b%a,a);
+}
+
+ull smallest_sum_solution(const std::vector<ull>& arr){
+    /*
+    Basic trick to the problem is to identify that
+    the smallest number you have at the end of all
+    transformations is nothing but the GCD of all
+    numbers. Since that number is repeated for each
+    element in the array multiplying it by the size gets
+    the right answer.
+    
+    Here is a reference: https://en.wikipedia.org/wiki/Greatest_common_divisor
+    */
+    int size = arr.size();
+    ull result = arr[0];
+
+    for (ull x : arr){
+        result = gcd(x,result);
+    }
+    
+    return size * result;
 }

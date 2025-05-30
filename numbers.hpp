@@ -24,3 +24,4 @@ std::string rgb_to_hex(int r, int g, int b);
 uint32_t partitions(uint32_t n);
 bool isPrime(int num);
 bool isPrime6(int num);
+unsigned long long smallest_sum(const std::vector<unsigned long long>& arr);
