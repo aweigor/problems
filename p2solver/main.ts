@@ -10,7 +10,11 @@
  * result needs to be an array of all opened tiles and tiles with probabilities map.
  **/
 
-export interface ITile {
+function notNull(something: any): something is Omit<null, any> {
+  return something !== null;
+}
+
+interface ITile {
   key: string;
   opened: boolean;
   discovered: boolean;
@@ -18,6 +22,11 @@ export interface ITile {
   number: number | null;
   probabilities: Map<number, number> | null;
 }
+
+
+
+type TilePraramsT = { data: ITile; adjacent: ITile[] };
+type GraphT = Record<string, TilePraramsT>
 
 const ROWS_NUM = 11;
 const COLS_NUM = 7;
@@ -98,9 +107,9 @@ export const getAdjacentTiles: (tile: ITile, allTiles: ITile[]) => ITile[] = (
   return result;
 };
 
-const getBoardGraph: (
-  openedTiles: ITile[]
-) => Record<string, { data: ITile; adjacent: ITile[] }> = (openedTiles) => {
+const getBoardGraph: (openedTiles: ITile[]) =>  = (
+  openedTiles
+) => {
   const allTiles = [] as ITile[];
   for (let i = 0; i < ROWS_NUM; i++) {
     for (let j = 0; j < COLS_NUM; j++) {
@@ -119,12 +128,61 @@ const getBoardGraph: (
 };
 
 export function execute(result: ITile[]): void {
+  const discoveredKeys = result.map((t) => t.key);
   const graph = getBoardGraph(JSON.parse(JSON.stringify(result)));
-  console.log(graph);
+  firstRun(graph);
+}
+
+export function firstRun(graph: GraphT) {
+  const discoveredKeys = Object.keys(graph).filter(
+    (k) => graph[k].data.discovered
+  );
+
+  const checkDiscoveredTraversalList = discoveredKeys.map((k) => graph[k]);
+  let tile: TilePraramsT | undefined;
+  while ((tile = checkDiscoveredTraversalList.shift())) {
+    if (!tile) break;
+    if (!tile.data.value) continue;
+    const undiscoveredAdjacents = tile.adjacent.map(t => !t.discovered);
+    if (!undiscoveredAdjacents) continue;
+    else if (undiscoveredAdjacents.length === 1) {
+      // update
+    }
+    else {
+      // deep find
+    }
+  }
+}
+
+/** Decomposes given sum into numbers from list **/
+export function decompose(
+  lenght: number,
+  sum: number,
+  candidates: number[]
+): number[][] {
+  const result: number[][] = [];
+  candidates.sort((a, b) => a - b); // Helps in pruning
+
+  function backtrack(start: number, path: number[], currentSum: number): void {
+    if (currentSum === sum) {
+      result.push([...path]);
+      return;
+    }
+    if (currentSum > sum || path.length >= lenght) {
+      return;
+    }
+    for (let i = start; i < candidates.length; i++) {
+      if (i > start && candidates[i] === candidates[i - 1]) {
+        continue;
+      }
+      path.push(candidates[i]);
+      backtrack(i, path, currentSum + candidates[i]);
+      path.pop();
+    }
+  }
+
+  backtrack(0, [], 0);
+  return result;
 }
 
 execute([]);
-
-function notNull(something: any): something is Omit<null, any> {
-  return something !== null;
-}
