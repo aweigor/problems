@@ -14,6 +14,10 @@ function notNull(something: any): something is Omit<null, any> {
   return something !== null;
 }
 
+function throwError(message?: string): never {
+  throw new Error(message);
+}
+
 interface ITile {
   key: string;
   opened: boolean;
@@ -23,13 +27,12 @@ interface ITile {
   probabilities: Map<number, number> | null;
 }
 
-
-
 type TilePraramsT = { data: ITile; adjacent: ITile[] };
-type GraphT = Record<string, TilePraramsT>
+type GraphT = Record<string, TilePraramsT>;
 
 const ROWS_NUM = 11;
 const COLS_NUM = 7;
+const ERROR_STATE_NOT_VALID = "invalid state";
 
 const NUMBERS = [
   [1, 1],
@@ -62,8 +65,21 @@ const parseKey = (key: string) => {
   return [!isNaN(col) ? col : null, !isNaN(row) ? row : null];
 };
 
-const getTile = (tiles: ITile[], key: string) => {
-  return tiles.find((t) => t.key === key);
+const getTile: (graph: GraphT, key: string) => TilePraramsT | null = (
+  graph,
+  key
+) => {
+  return Object.values(graph).find((t) => t.data.key === key) || null;
+};
+
+const updateTile: (graph: GraphT, data: ITile) => void = (graph, data) => {
+  const tile = getTile(graph, data.key);
+  if (tile) {
+    tile.data = {
+      ...tile.data,
+      ...data,
+    };
+  }
 };
 
 export const getEmptyTile = (key: string) => {
@@ -107,16 +123,15 @@ export const getAdjacentTiles: (tile: ITile, allTiles: ITile[]) => ITile[] = (
   return result;
 };
 
-const getBoardGraph: (openedTiles: ITile[]) =>  = (
-  openedTiles
-) => {
+const getBoardGraph: (openedTiles: ITile[]) => GraphT = (openedTiles) => {
   const allTiles = [] as ITile[];
   for (let i = 0; i < ROWS_NUM; i++) {
     for (let j = 0; j < COLS_NUM; j++) {
       // key is not null
       const key = getKey(i, j, ROWS_NUM, COLS_NUM) as string;
-      const tile = getTile(openedTiles, key);
-      allTiles.push(tile || getEmptyTile(key));
+      allTiles.push(
+        openedTiles.find((t) => t.key === key) || getEmptyTile(key)
+      );
     }
   }
   return Object.fromEntries(
@@ -130,26 +145,33 @@ const getBoardGraph: (openedTiles: ITile[]) =>  = (
 export function execute(result: ITile[]): void {
   const discoveredKeys = result.map((t) => t.key);
   const graph = getBoardGraph(JSON.parse(JSON.stringify(result)));
-  firstRun(graph);
+  firstRun(graph, getNumbersMap());
 }
 
-export function firstRun(graph: GraphT) {
+export function firstRun(graph: GraphT, numbersMap: Map<number, number>) {
   const discoveredKeys = Object.keys(graph).filter(
     (k) => graph[k].data.discovered
   );
 
-  const checkDiscoveredTraversalList = discoveredKeys.map((k) => graph[k]);
-  let tile: TilePraramsT | undefined;
-  while ((tile = checkDiscoveredTraversalList.shift())) {
-    if (!tile) break;
-    if (!tile.data.value) continue;
-    const undiscoveredAdjacents = tile.adjacent.map(t => !t.discovered);
+  // traverse all discovered to search for tiles with low entropy
+  const checkList = discoveredKeys.map((k) => graph[k]);
+
+  let _tile: TilePraramsT | undefined;
+  while ((_tile = checkList.shift())) {
+    if (!_tile) break;
+    if (!_tile.data.value) continue;
+    const undiscoveredAdjacents = _tile.adjacent.filter((t) => !t.discovered);
     if (!undiscoveredAdjacents) continue;
     else if (undiscoveredAdjacents.length === 1) {
-      // update
-    }
-    else {
-      // deep find
+      if (!numbersMap.keys().some((k) => k === _tile?.data.value)) {
+        throwError(ERROR_STATE_NOT_VALID);
+      }
+      const tile = undiscoveredAdjacents[0] as ITile;
+      updateTile(graph, {
+        ...tile,
+        number: _tile.data.value, // checked
+      });
+    } else {
     }
   }
 }
@@ -160,8 +182,9 @@ export function decompose(
   sum: number,
   candidates: number[]
 ): number[][] {
+  // todo: optimize - do check for candidates count
   const result: number[][] = [];
-  candidates.sort((a, b) => a - b); // Helps in pruning
+  candidates.sort((a, b) => a - b);
 
   function backtrack(start: number, path: number[], currentSum: number): void {
     if (currentSum === sum) {
