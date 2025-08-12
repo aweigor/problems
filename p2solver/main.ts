@@ -34,11 +34,15 @@ const ROWS_NUM = 11;
 const COLS_NUM = 7;
 const ERROR_STATE_NOT_VALID = "invalid state";
 
-const NUMBERS = [
+const NUMBERS: [number, number][] = [
   [1, 1],
   [2, 4],
   [4, 8],
 ] as const;
+
+const byIndex = (i: number) => (x: [number, number]) => x[i];
+const numKeys = (nums: [number, number][]) => nums.map(byIndex(0));
+const numValues = (nums: [number, number][]) => nums.map(byIndex(1));
 
 const getNumbersMap = () => {
   const numbersMap = new Map();
@@ -153,7 +157,6 @@ export function firstRun(graph: GraphT, numbersMap: Map<number, number>) {
     (k) => graph[k].data.discovered
   );
 
-  // traverse all discovered to search for tiles with low entropy
   const checkList = discoveredKeys.map((k) => graph[k].data);
 
   let _tile: ITile;
@@ -163,6 +166,11 @@ export function firstRun(graph: GraphT, numbersMap: Map<number, number>) {
     const _params = getTile(graph, _tile.key);
     if (!_params) continue;
     const undiscoveredAdjacents = _params.adjacent.filter((t) => !t.discovered);
+    const discoveredAdjacents = _params.adjacent.filter((t) => t.discovered);
+    const discoveredSum = discoveredAdjacents.reduce(
+      (el, acc) => el + (acc.number || 0),
+      0
+    );
     if (!undiscoveredAdjacents) continue;
     else if (undiscoveredAdjacents.length === 1) {
       if (!numbersMap.keys().some((k) => k === _tile.value)) {
@@ -172,14 +180,20 @@ export function firstRun(graph: GraphT, numbersMap: Map<number, number>) {
       if (!tile) continue;
       updateTile(graph, {
         ...tile.data,
-        number: _tile.value, // checked
+        number: _tile.value,
       });
       for (const a of tile.adjacent) {
         if (a.discovered && !checkList.find((p) => p.key === a.key)) {
-          checkList.push(a); // push back to the cycle
+          checkList.push(a); // requeue
         }
       }
     } else {
+      // undiscovered > 1
+      const dec = decompose(
+        undiscoveredAdjacents.length,
+        _tile.value - discoveredSum,
+        Array.from(numbersMap.keys())
+      );
     }
   }
 }
@@ -194,7 +208,12 @@ export function decompose(
   const result: number[][] = [];
   candidates.sort((a, b) => a - b);
 
-  function backtrack(start: number, path: number[], currentSum: number): void {
+  function backtrack(
+    start: number,
+    path: number[],
+    currentSum: number,
+    result: number[][]
+  ): void {
     if (currentSum === sum) {
       result.push([...path]);
       return;
@@ -207,12 +226,12 @@ export function decompose(
         continue;
       }
       path.push(candidates[i]);
-      backtrack(i, path, currentSum + candidates[i]);
+      backtrack(i, path, currentSum + candidates[i], result);
       path.pop();
     }
   }
 
-  backtrack(0, [], 0);
+  backtrack(0, [], 0, result);
   return result;
 }
 
