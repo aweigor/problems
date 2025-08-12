@@ -192,19 +192,19 @@ export function firstRun(graph: GraphT, numbersMap: Map<number, number>) {
       const dec = decompose(
         undiscoveredAdjacents.length,
         _tile.value - discoveredSum,
-        Array.from(numbersMap.keys())
+        numbersMap
       );
     }
   }
 }
 
 /** Decomposes given sum into numbers from list **/
-export function decompose(
+function decompose(
   lenght: number,
   sum: number,
-  candidates: number[]
+  countMap: Map<number, number>
 ): number[][] {
-  // todo: optimize - do check for candidates count
+  const candidates = Array.from(countMap.keys());
   const result: number[][] = [];
   candidates.sort((a, b) => a - b);
 
@@ -215,7 +215,9 @@ export function decompose(
     result: number[][]
   ): void {
     if (currentSum === sum) {
-      result.push([...path]);
+      if (validatePath(path)) {
+        result.push([...path]);
+      }
       return;
     }
     if (currentSum > sum || path.length >= lenght) {
@@ -231,8 +233,20 @@ export function decompose(
     }
   }
 
+  function validatePath(path: number[]) {
+    const pathCountMap = path.reduce((acc, el) => {
+      acc.set(el, (acc.get(el) || 0) + 1);
+      return acc;
+    }, new Map<number, number>());
+    return !countMap
+      .keys()
+      .some((k) => Number(countMap.get(k)) < Number(pathCountMap.get(k)));
+  }
+
   backtrack(0, [], 0, result);
   return result;
 }
+
+/**/
 
 execute([]);
