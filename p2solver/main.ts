@@ -197,7 +197,7 @@ export function firstRun(graph: GraphT, numbersMap: Map<number, number>) {
 
       for (const numSet of dec) {
         // Here we could check all allocations to find those which number is only one.
-        // but where is no chances that is will happen. But in this place we could group
+        // but there is no chances that is will happen. But in this place we could group
         // keys into areas of the same class. Classification rule:
         // option 1. all keys are different / have same.
         // options 2. all keys are different or same (intersection) have same set of values
