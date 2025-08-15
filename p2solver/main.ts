@@ -194,7 +194,13 @@ export function firstRun(graph: GraphT, numbersMap: Map<number, number>) {
         _tile.value - discoveredSum,
         numbersMap
       );
+
       for (const numSet of dec) {
+        // Here we could check all allocations to find those which number is only one.
+        // but where is no chances that is will happen. But in this place we could group
+        // keys into areas of the same class. Classification rule:
+        // option 1. all keys are different / have same.
+        // options 2. all keys are different or same (intersection) have same set of values
         const allocations = getAllocations(
           numSet,
           undiscoveredAdjacents.length
@@ -207,6 +213,7 @@ export function firstRun(graph: GraphT, numbersMap: Map<number, number>) {
 /**
  * Gets all allocations (permutations) of numbers across undiscovered nodes
  * We do not really need the nodes, just the max count of places
+ * TODO: Heap
  */
 function getAllocations(numbers: number[], cellCount: number) {
   const padded = [...numbers];
