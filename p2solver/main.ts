@@ -19,11 +19,13 @@ function throwError(message?: string): never {
   throw new Error(message);
 }
 
-function deepEqual(
-  obj1: Record<string, unknown>,
-  obj2: Record<string, unknown>
-) {
-  return false;
+function equal(obj1: Record<string, number>, obj2: Record<string, number>) {
+  for (const k of Object.keys(obj1)) {
+    if (!obj2[k] || obj2[k] !== obj1[k]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 interface ITile {
@@ -59,10 +61,21 @@ const byIndex = (i: number) => (x: [number, number]) => x[i];
 const numKeys = (nums: [number, number][]) => nums.map(byIndex(0));
 const numValues = (nums: [number, number][]) => nums.map(byIndex(1));
 
-const getNumbersMap = () => {
-  const numbersMap = new Map();
+const getNumbersMap = (graph?: GraphT) => {
+  const numbersMap = new Map<number, number>();
   for (const n of NUMBERS) {
     numbersMap.set(n[0], n[1]);
+  }
+  if (graph) {
+    for (const k of Object.keys(graph)) {
+      const tile = graph[k].data;
+      if (tile.discovered && tile.number) {
+        const count = numbersMap.get(tile.number);
+        if (count !== undefined) {
+          numbersMap.set(tile.number, count - 1);
+        }
+      }
+    }
   }
   return numbersMap;
 };
@@ -103,18 +116,6 @@ const updateTile: (graph: GraphT, key: string, data: Partial<ITile>) => void = (
       ...data,
       key,
     };
-  }
-};
-
-const updateTiles = (
-  graph: GraphT,
-  items: {
-    key: string;
-    data: Partial<ITile>;
-  }[]
-) => {
-  for (const item of items) {
-    updateTile(graph, item.key, item.data);
   }
 };
 
@@ -178,10 +179,11 @@ const getBoardGraph: (openedTiles: ITile[]) => GraphT = (openedTiles) => {
   );
 };
 
-export function execute(result: ITile[]): void {
+export function execute(result: ITile[]): GraphT {
   const graph = getBoardGraph(JSON.parse(JSON.stringify(result)));
   const allocationStates: Map<string, TileAllocationStateT> = new Map();
-  firstRun(graph, getNumbersMap(), allocationStates);
+  const numbersMap = getNumbersMap(graph);
+  firstRun(graph, numbersMap, allocationStates);
   // We got all states of all tiles with more than one undiscovered adjacent
   // Now we need to split tiles into classes.
   // Classification rule: all keys of undiscovered tiles
@@ -191,8 +193,17 @@ export function execute(result: ITile[]): void {
 
   // We can handle each class separately and concurrently
   for (const stateClass of allocationStateClasses) {
+    secondRun(graph, numbersMap, stateClass);
   }
+
+  return graph;
 }
+
+export function secondRun(
+  graph: GraphT,
+  numbersMap: Map<number, number>,
+  allocationStates: Map<string, TileAllocationStateT>
+) {}
 
 /**
  * Divides allocation states into classes - areas without intersections by keys
@@ -201,7 +212,7 @@ export function execute(result: ITile[]): void {
  * - Get result areas and look for intersections over other areas.
  * - If area keys intersects another area, merge two areas.
  */
-export function getAllocationStateClasses(
+function getAllocationStateClasses(
   states: Map<string, TileAllocationStateT>
 ): TileStateClassesT {
   const keyFields: Set<string>[] = [];
@@ -209,17 +220,17 @@ export function getAllocationStateClasses(
     const state = states.get(k);
     if (state && state.length) {
       const adjacentKeys = Object.keys(state.at(0)!);
-      let classFound = false;
+      let classExists = false;
       for (const keys of keyFields) {
         if (adjacentKeys.some((k) => keys.has(k))) {
-          classFound = true;
+          classExists = true;
           for (const ak of adjacentKeys) {
             keys.add(ak);
           }
           break;
         }
       }
-      if (!classFound) {
+      if (!classExists) {
         const keys = new Set<string>();
         for (const ak of adjacentKeys) {
           keys.add(ak);
@@ -230,15 +241,16 @@ export function getAllocationStateClasses(
   }
   const mergedFields: Set<string>[] = [];
   for (const field of keyFields) {
-    let classFound = false;
+    let classExists = false;
     for (const field2 of mergedFields) {
       if (field.intersection(field2).size) {
+        classExists = true;
         for (const key of field.values()) {
           field2.add(key);
         }
       }
     }
-    if (!classFound) {
+    if (!classExists) {
       mergedFields.push(field);
     }
   }
@@ -275,6 +287,17 @@ export function firstRun(
 
   const checkList = discoveredKeys.map((k) => graph[k].data);
 
+  const saveAndRequeue = (key: string, result: Partial<ITile>) => {
+    const tileData = getTile(graph, key);
+    if (!tileData) return;
+    updateTile(graph, key, result);
+    for (const a of tileData.adjacent) {
+      if (isDiscovered(a) && !checkList.find((p) => p.key === a.key)) {
+        checkList.push(a);
+      }
+    }
+  };
+
   let _tile: ITile;
   while ((_tile = checkList.shift() as ITile)) {
     if (!_tile) break;
@@ -290,34 +313,20 @@ export function firstRun(
     );
     if (_tile.value - discoveredSum === 0) {
       for (const tile of undiscoveredAdjacents) {
-        const tileData = getTile(graph, tile.key);
-        if (!tileData) break;
-        updateTile(graph, tile.key, {
-          number: 0,
+        saveAndRequeue(tile.key, {
           discovered: true,
+          number: 0,
         });
-        for (const a of tileData.adjacent) {
-          if (isDiscovered(a) && !checkList.find((p) => p.key === a.key)) {
-            checkList.push(a); // requeue
-          }
-        }
       }
     }
     if (undiscoveredAdjacents.length === 1) {
       if (!numbersMap.keys().some((k) => k === _tile.value)) {
         throwError(ERROR_STATE_NOT_VALID);
       }
-      const tile = getTile(graph, undiscoveredAdjacents[0].key);
-      if (!tile) continue;
-      updateTile(graph, tile.data.key, {
+      saveAndRequeue(undiscoveredAdjacents[0].key, {
         number: _tile.value,
         discovered: true,
       });
-      for (const a of tile.adjacent) {
-        if (isDiscovered(a) && !checkList.find((p) => p.key === a.key)) {
-          checkList.push(a); // requeue
-        }
-      }
     } else {
       // undiscovered > 1 means that we dont know exact distribution under undiscovered adjacent tiles
       const dec = decompose(
@@ -341,9 +350,7 @@ export function firstRun(
               return [_params.adjacent[i].key, a];
             })
           );
-          if (
-            !tileAllocationState.some((state) => deepEqual(state, allocState))
-          ) {
+          if (!tileAllocationState.some((state) => equal(state, allocState))) {
             tileAllocationState.push(allocState);
           }
         }
