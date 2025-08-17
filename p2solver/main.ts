@@ -1,14 +1,12 @@
 /**
- * Problem:
+ ** Problem:
  * given board of 7 * 11 tiles . possible numbers are finite.
  * there are tiles with number (non-null) and ones without.
  * value of tile is sum of its ajacents non-null tiles.
  * there are discovered tiles and unknown ones.
  * there are closed tiles and opened ones. non-null tile may be discovered but closed.
  * tails have string keys that defines its positions on the board.
- * Objective:
- * compute all possible positions of numbers in the non-null undiscovered tiles.
- * result needs to be an array of all opened tiles and tiles with probabilities map.
+ 
  *
  * ,,,,,,      ,,,,,,      ,,,,,,
  * | 0  |      | 0  |      | 0  |
@@ -28,6 +26,11 @@
  *    ...
  *
  *    ...
+ * 
+ * 
+ ** Objective:
+ * compute all possible positions of numbers at the non-null undiscovered tiles.
+ * result needs to be an array of all opened tiles and tiles with probabilities map.
  **/
 
 function notNull(something: any): something is Omit<null, any> {
@@ -62,8 +65,15 @@ export interface ITile {
   probabilities: Map<number, number> | null;
 }
 
+export interface IGraph {
+  getTile(key: string): ITile | null;
+  getTileParams(key: string): TilePraramsT | null;
+  updateTile(key: string, data: Partial<ITile>): void;
+  keys(): string[];
+  discoveredKeys(): string[];
+}
+
 export type TilePraramsT = { data: ITile; adjacent: ITile[] };
-export type GraphT = Record<string, TilePraramsT>;
 export type TileAllocationStateT = Record<string, number>[];
 
 /**
@@ -98,14 +108,14 @@ const decreaseNumber = (map: Map<number, number>, number: number) => {
   }
 };
 
-const getNumbersMap = (graph?: GraphT) => {
+export const getNumbersMap = (graph?: IGraph) => {
   const numbersMap = new Map<number, number>();
   for (const n of NUMBERS) {
     numbersMap.set(n[0], n[1]);
   }
   if (graph) {
-    for (const k of Object.keys(graph)) {
-      const tile = graph[k].data;
+    for (const k of graph.keys()) {
+      const tile = graph.getTile(k)!;
       if (tile.discovered && tile.number) {
         decreaseNumber(numbersMap, tile.number);
       }
@@ -129,28 +139,6 @@ export const parseKey = (key: string) => {
   const parsed = key.split(":").map((x) => parseInt(x));
   const [col, row] = parsed;
   return [!isNaN(col) ? col : null, !isNaN(row) ? row : null];
-};
-
-export const getTile: (graph: GraphT, key: string) => TilePraramsT | null = (
-  graph,
-  key
-) => {
-  return Object.values(graph).find((t) => t.data.key === key) || null;
-};
-
-const updateTile: (graph: GraphT, key: string, data: Partial<ITile>) => void = (
-  graph,
-  key,
-  data
-) => {
-  const tile = getTile(graph, key);
-  if (tile) {
-    tile.data = {
-      ...tile.data,
-      ...data,
-      key,
-    };
-  }
 };
 
 export const getEmptyTile = (key: string) => {
@@ -202,7 +190,7 @@ export const getAdjacentTiles: (tile: ITile, allTiles: ITile[]) => ITile[] = (
  * If no tile in the start array, empty tile will be created
  */
 export const getBoardTiles: (openedTiles: ITile[]) => ITile[] = (
-  openedTiles
+  openedTiles: ITile[]
 ) => {
   const allTiles = [] as ITile[];
   for (let i = 0; i < ROWS_NUM; i++) {
@@ -217,24 +205,53 @@ export const getBoardTiles: (openedTiles: ITile[]) => ITile[] = (
   return allTiles;
 };
 
-/**
- * Creates board graph.
- * Result contains all tiles of the board. Known tiles must be provided in constructor.
- */
-export const getBoardGraph: (openedTiles: ITile[]) => GraphT = (
-  openedTiles
-) => {
-  const allTiles = getBoardTiles(openedTiles);
-  return Object.fromEntries(
-    allTiles.map((t) => [
-      t.key,
-      { data: t, adjacent: getAdjacentTiles(t, allTiles) },
-    ])
-  );
-};
+export class BoardGraph implements IGraph {
+  static isDiscovered(tile: ITile) {
+    return tile.opened && tile.discovered;
+  }
 
-export function execute(result: ITile[]): GraphT {
-  const graph = getBoardGraph(JSON.parse(JSON.stringify(result)));
+  private _data: ITile[] = [];
+  /**
+   * Creates board graph.
+   * Result contains all tiles of the board. Known tiles must be provided in constructor.
+   */
+  constructor(tiles: ITile[]) {
+    this._data = getBoardTiles(tiles);
+  }
+
+  keys() {
+    return this._data.map((t) => t.key);
+  }
+
+  discoveredKeys() {
+    return this._data
+      .filter((t) => BoardGraph.isDiscovered(t))
+      .map((t) => t.key);
+  }
+
+  getTile(key: string): ITile | null {
+    return this._data.find((t) => t.key === key) || null;
+  }
+
+  getTileParams(key: string): TilePraramsT | null {
+    const tileData = this.getTile(key);
+    if (!tileData) return null;
+    return {
+      data: tileData,
+      adjacent: getAdjacentTiles(tileData, this._data),
+    };
+  }
+
+  updateTile(key: string, data: Partial<ITile>) {
+    const tile = this.getTile(key);
+    if (tile) {
+      Object.assign(tile, { ...data, key }); // protect rewriting key
+    }
+  }
+}
+
+export function execute(startTiles: ITile[]): IGraph {
+  const graph = new BoardGraph(startTiles);
   const allocationStates: Map<string, TileAllocationStateT> = new Map();
   const numbersMap = getNumbersMap(graph);
   firstRun(graph, numbersMap, allocationStates);
@@ -328,7 +345,7 @@ export function joinConsistentAllocations(
 }
 
 export function secondRun(
-  graph: GraphT,
+  graph: IGraph,
   numbersMap: Map<number, number>,
   allocationStates: Map<string, TileAllocationStateT>
 ) {
@@ -367,7 +384,7 @@ export function secondRun(
         numberProbabilityValues.length > 1 ? numberProbabilityMap : null,
     };
 
-    updateTile(graph, key, tileParams);
+    graph.updateTile(key, tileParams);
   }
 }
 
@@ -439,26 +456,21 @@ function getAllocationStateClasses(
 }
 
 export function firstRun(
-  graph: GraphT,
+  graph: IGraph,
   numbersMap: Map<number, number>,
   allocationStates: Map<string, TileAllocationStateT>
 ) {
-  function isDiscovered(tile: ITile) {
-    return tile.opened && tile.discovered;
-  }
-
-  const discoveredKeys = Object.keys(graph).filter((k) =>
-    isDiscovered(graph[k].data)
-  );
-
-  const checkList = discoveredKeys.map((k) => graph[k].data);
+  const checkList = graph.discoveredKeys().map((k) => graph.getTile(k)!);
 
   const saveAndRequeue = (key: string, result: Partial<ITile>) => {
-    const tileData = getTile(graph, key);
-    if (!tileData) return;
-    updateTile(graph, key, result);
-    for (const a of tileData.adjacent) {
-      if (isDiscovered(a) && !checkList.find((p) => p.key === a.key)) {
+    const tileParams = graph.getTileParams(key);
+    if (!tileParams) return;
+    graph.updateTile(key, result);
+    for (const a of tileParams.adjacent) {
+      if (
+        BoardGraph.isDiscovered(a) &&
+        !checkList.find((p) => p.key === a.key)
+      ) {
         checkList.push(a);
       }
     }
@@ -468,7 +480,7 @@ export function firstRun(
   while ((_tile = checkList.shift() as ITile)) {
     if (!_tile) break;
     if (!_tile.value) continue; // TODO: check if tile has adjacents. if value equals 0, means that all adjacents are
-    const _params = getTile(graph, _tile.key);
+    const _params = graph.getTileParams(_tile.key);
     if (!_params) continue;
     const undiscoveredAdjacents = _params.adjacent.filter((t) => !t.discovered);
     if (!undiscoveredAdjacents) continue;
@@ -484,8 +496,7 @@ export function firstRun(
           number: 0,
         });
       }
-    }
-    if (undiscoveredAdjacents.length === 1) {
+    } else if (undiscoveredAdjacents.length === 1) {
       if (!numbersMap.keys().some((k) => k === _tile.value)) {
         throw handleError("stateNotFound");
       }
@@ -612,5 +623,13 @@ function decompose(
 }
 
 /**/
+
+function test() {
+  const a = 1;
+
+  return a;
+}
+
+test();
 
 // execute([]);
