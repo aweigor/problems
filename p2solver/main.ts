@@ -9,6 +9,25 @@
  * Objective:
  * compute all possible positions of numbers in the non-null undiscovered tiles.
  * result needs to be an array of all opened tiles and tiles with probabilities map.
+ *
+ * ,,,,,,      ,,,,,,      ,,,,,,
+ * | 0  |      | 0  |      | 0  |
+ * | 5  |      | 5  |      | 5  |   ...   ...
+ * ''''''      ''''''      ''''''
+ *
+ * ,,,,,,      ,,,,,,      ,,,,,,
+ * | 5  |      | 0  |      | 5  | <---- number
+ * | 0  | <--> | 10 | <--> | 0  | <---- value
+ * ''''''      ''''''      ''''''
+ *
+ * ,,,,,,      ,,,,,,      ,,,,,,
+ * | 0  |      | 0  |      | 0  |   ...   ...
+ * | 5  |      | 5  |      | 5  |
+ * ''''''      ''''''      ''''''
+ *
+ *    ...
+ *
+ *    ...
  **/
 
 function notNull(something: any): something is Omit<null, any> {
@@ -21,8 +40,8 @@ const ERRORS = {
   stateNotFound: () => new Error("impossible state"),
 };
 
-const throwError = <T extends keyof typeof ERRORS>(error?: T) => {
-  throw ERRORS[error || "default"];
+const handleError = <T extends keyof typeof ERRORS>(error?: T) => {
+  throw ERRORS[error || "default"]();
 };
 
 function equal(obj1: Record<string, number>, obj2: Record<string, number>) {
@@ -34,7 +53,7 @@ function equal(obj1: Record<string, number>, obj2: Record<string, number>) {
   return true;
 }
 
-interface ITile {
+export interface ITile {
   key: string;
   opened: boolean;
   discovered: boolean;
@@ -43,28 +62,41 @@ interface ITile {
   probabilities: Map<number, number> | null;
 }
 
-type TilePraramsT = { data: ITile; adjacent: ITile[] };
-type GraphT = Record<string, TilePraramsT>;
-type TileAllocationStateT = Record<string, number>[];
+export type TilePraramsT = { data: ITile; adjacent: ITile[] };
+export type GraphT = Record<string, TilePraramsT>;
+export type TileAllocationStateT = Record<string, number>[];
 
 /**
  * The structure describes groups of state classes, independent fields of node states -
  * - set of numbers distributed across undiscovered adjacents.
  */
-type TileStateClassesT = Map<string, TileAllocationStateT>[];
+export type TileStateClassesT = Map<string, TileAllocationStateT>[];
 
-const ROWS_NUM = 11;
-const COLS_NUM = 7;
+export const ROWS_NUM = 11;
+export const COLS_NUM = 7;
 
-const NUMBERS: [number, number][] = [
+export const NUMBERS: [number, number][] = [
   [1, 1],
   [2, 4],
-  [4, 8],
+  [3, 4],
+  [4, 2],
+  [5, 1],
+  [6, 3],
+  [10, 1],
+  [15, 1],
+  [100, 8],
 ] as const;
 
 const byIndex = (i: number) => (x: [number, number]) => x[i];
 const numKeys = (nums: [number, number][]) => nums.map(byIndex(0));
 const numValues = (nums: [number, number][]) => nums.map(byIndex(1));
+
+const decreaseNumber = (map: Map<number, number>, number: number) => {
+  const val = map.get(number);
+  if (val !== undefined) {
+    map.set(number, val - 1);
+  }
+};
 
 const getNumbersMap = (graph?: GraphT) => {
   const numbersMap = new Map<number, number>();
@@ -75,17 +107,14 @@ const getNumbersMap = (graph?: GraphT) => {
     for (const k of Object.keys(graph)) {
       const tile = graph[k].data;
       if (tile.discovered && tile.number) {
-        const count = numbersMap.get(tile.number);
-        if (count !== undefined) {
-          numbersMap.set(tile.number, count - 1);
-        }
+        decreaseNumber(numbersMap, tile.number);
       }
     }
   }
   return numbersMap;
 };
 
-const getKey = (
+export const getKey = (
   rowIndex: number,
   colIndex: number,
   rows = ROWS_NUM,
@@ -96,13 +125,13 @@ const getKey = (
   return `${colIndex}:${rowIndex}`;
 };
 
-const parseKey = (key: string) => {
+export const parseKey = (key: string) => {
   const parsed = key.split(":").map((x) => parseInt(x));
   const [col, row] = parsed;
   return [!isNaN(col) ? col : null, !isNaN(row) ? row : null];
 };
 
-const getTile: (graph: GraphT, key: string) => TilePraramsT | null = (
+export const getTile: (graph: GraphT, key: string) => TilePraramsT | null = (
   graph,
   key
 ) => {
@@ -135,6 +164,9 @@ export const getEmptyTile = (key: string) => {
   } as ITile;
 };
 
+/**
+ * Computes adjacents regardless provided tile and the board
+ */
 export const getAdjacentTiles: (tile: ITile, allTiles: ITile[]) => ITile[] = (
   tile: ITile,
   allTiles: ITile[]
@@ -165,7 +197,13 @@ export const getAdjacentTiles: (tile: ITile, allTiles: ITile[]) => ITile[] = (
   return result;
 };
 
-const getBoardGraph: (openedTiles: ITile[]) => GraphT = (openedTiles) => {
+/**
+ * Fills result with all board tiles according to amount provided in configuration
+ * If no tile in the start array, empty tile will be created
+ */
+export const getBoardTiles: (openedTiles: ITile[]) => ITile[] = (
+  openedTiles
+) => {
   const allTiles = [] as ITile[];
   for (let i = 0; i < ROWS_NUM; i++) {
     for (let j = 0; j < COLS_NUM; j++) {
@@ -176,6 +214,17 @@ const getBoardGraph: (openedTiles: ITile[]) => GraphT = (openedTiles) => {
       );
     }
   }
+  return allTiles;
+};
+
+/**
+ * Creates board graph.
+ * Result contains all tiles of the board. Known tiles must be provided in constructor.
+ */
+export const getBoardGraph: (openedTiles: ITile[]) => GraphT = (
+  openedTiles
+) => {
+  const allTiles = getBoardTiles(openedTiles);
   return Object.fromEntries(
     allTiles.map((t) => [
       t.key,
@@ -195,12 +244,10 @@ export function execute(result: ITile[]): GraphT {
   // are different against all tiles in another class
   const allocationStateClasses = [allocationStates];
   getAllocationStateClasses(allocationStates);
-
   // We can handle each class separately and concurrently
   for (const stateClass of allocationStateClasses) {
     secondRun(graph, numbersMap, stateClass);
   }
-
   return graph;
 }
 
@@ -220,7 +267,7 @@ function findConsistent(
         if (d_state[d_key]) {
           let number = _numbers.get(d_state[d_key]);
           if (!number) {
-            return throwError("numberNotFound");
+            throw handleError("numberNotFound");
           }
           number--;
           if (number < 0) {
@@ -440,7 +487,7 @@ export function firstRun(
     }
     if (undiscoveredAdjacents.length === 1) {
       if (!numbersMap.keys().some((k) => k === _tile.value)) {
-        throwError("stateNotFound");
+        throw handleError("stateNotFound");
       }
       saveAndRequeue(undiscoveredAdjacents[0].key, {
         number: _tile.value,
@@ -485,7 +532,7 @@ export function firstRun(
  * We do not really need the nodes, just the max count of places
  * TODO: Heap
  */
-function getAllocations(numbers: number[], cellCount: number) {
+export function getAllocations(numbers: number[], cellCount: number) {
   const padded = [...numbers];
   while (padded.length < cellCount) {
     padded.push(0);
@@ -566,4 +613,4 @@ function decompose(
 
 /**/
 
-execute([]);
+// execute([]);
