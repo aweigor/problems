@@ -1,3 +1,4 @@
+import { assertArrayIncludes } from "@std/assert/array-includes";
 import {
   BoardGraph,
   firstRun,
@@ -7,6 +8,7 @@ import {
   getKey,
   getNumbersMap,
   type TileAllocationStateT,
+  decompose,
 } from "./main.ts";
 import { assertEquals } from "@std/assert";
 
@@ -91,5 +93,47 @@ Deno.test(
 
     const resultTile = graph.getTile(getKey(1, 1)!);
     assertEquals(resultTile?.number, 5);
+  }
+);
+
+Deno.test(
+  "Must decompose sum into numbers according to the count map",
+  function testDecompose1() {
+    const length = 3; // positions count
+    const countMap = new Map();
+    countMap.set(1, 3); // key is the number, value is amount
+    countMap.set(2, 2);
+    const sum = 3; // assuming the sum of numbers in result will be the same
+    const result = decompose(length, sum, countMap);
+    assertArrayIncludes(result, [
+      [1, 2],
+      [1, 1, 1],
+    ]);
+  }
+);
+
+Deno.test(
+  "Must consider amount of numbers in parameter",
+  function testDecompose1() {
+    const length = 3;
+    const countMap = new Map();
+    countMap.set(1, 2); // [1, 1, 1] is not valid combination now
+    countMap.set(2, 2);
+    const sum = 3;
+    const result = decompose(length, sum, countMap);
+    assertArrayIncludes(result, [[1, 2]]);
+  }
+);
+
+Deno.test(
+  "Must consider max length of decomposition",
+  function testDecompose1() {
+    const length = 2; // [1, 1, 1] is not valid combination now
+    const countMap = new Map();
+    countMap.set(1, 3);
+    countMap.set(2, 2);
+    const sum = 3;
+    const result = decompose(length, sum, countMap);
+    assertArrayIncludes(result, [[1, 2]]);
   }
 );
