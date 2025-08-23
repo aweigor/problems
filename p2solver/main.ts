@@ -574,7 +574,7 @@ export function getAllocations(numbers: number[], cellCount: number) {
  * Performs validation on maximum numbers with value in set
  * **/
 export function decompose(
-  lenght: number,
+  length: number,
   sum: number,
   countMap: Map<number, number>
 ): number[][] {
@@ -594,7 +594,7 @@ export function decompose(
       }
       return;
     }
-    if (currentSum > sum || path.length >= lenght) {
+    if (currentSum > sum || path.length >= length) {
       return;
     }
     for (let i = start; i < candidates.length; i++) {
