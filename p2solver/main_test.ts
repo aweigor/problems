@@ -9,6 +9,7 @@ import {
   getNumbersMap,
   type TileAllocationStateT,
   decompose,
+  getAllocations,
 } from "./main.ts";
 import { assertEquals } from "@std/assert";
 
@@ -114,7 +115,7 @@ Deno.test(
 
 Deno.test(
   "Must consider amount of numbers in parameter",
-  function testDecompose1() {
+  function testDecompose2() {
     const length = 3;
     const countMap = new Map();
     countMap.set(1, 2); // [1, 1, 1] is not valid combination now
@@ -127,7 +128,7 @@ Deno.test(
 
 Deno.test(
   "Must consider max length of decomposition",
-  function testDecompose1() {
+  function testDecompose3() {
     const length = 2; // [1, 1, 1] is not valid combination now
     const countMap = new Map();
     countMap.set(1, 3);
@@ -135,5 +136,22 @@ Deno.test(
     const sum = 3;
     const result = decompose(length, sum, countMap);
     assertArrayIncludes(result, [[1, 2]]);
+  }
+);
+
+Deno.test(
+  "Must compute allocation according to decomposition set and positions parameter",
+  function testAlocations1() {
+    const numbers: number[] = [1, 2];
+    const cellCount: number = 3;
+    const result = getAllocations(numbers, cellCount);
+    assertArrayIncludes(result, [
+      [1, 0, 2],
+      [2, 0, 1],
+      [1, 2, 0],
+      [2, 1, 0],
+      [0, 1, 2],
+      [0, 2, 1],
+    ]);
   }
 );
