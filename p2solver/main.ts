@@ -515,7 +515,8 @@ export function firstRun(
 
       for (const numSet of dec) {
         // Here we could check all allocations to find those which number is single across all states.
-        // but there is no chances that is will happen
+        // but there is no chances that is will happen.
+        // So we just compute allocations and save them for further processing
         const allocations = getAllocations(
           numSet,
           undiscoveredAdjacents.length
