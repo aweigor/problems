@@ -10,6 +10,9 @@ import {
   type TileAllocationStateT,
   decompose,
   getAllocations,
+  getAllocationStateClasses,
+  ROWS_NUM,
+  COLS_NUM,
 } from "./main.ts";
 import { assertEquals } from "@std/assert";
 
@@ -153,5 +156,41 @@ Deno.test(
       [0, 1, 2],
       [0, 2, 1],
     ]);
+  }
+);
+
+Deno.test(
+  "Must divide allocation into two classes according to reachable area of anchor tiles",
+  function testAllocationClasses() {
+    const startState = [
+      getTileWithValue(0, 0, 5),
+      getTileWithValue(ROWS_NUM - 1, COLS_NUM - 1, 5),
+    ];
+    const graph = new BoardGraph(startState);
+    const allocationStates: Map<string, TileAllocationStateT> = new Map();
+    const numbersMap = getNumbersMap(graph);
+    firstRun(graph, numbersMap, allocationStates);
+
+    const stateClasses = getAllocationStateClasses(allocationStates);
+    assertEquals(stateClasses.length, 2);
+  }
+);
+
+Deno.test(
+  "Must divide allocation into four classes according to reachable area of anchor tiles",
+  function testAllocationClasses() {
+    const startState = [
+      getTileWithValue(0, 0, 5),
+      getTileWithValue(ROWS_NUM - 1, COLS_NUM - 1, 5),
+      getTileWithValue(ROWS_NUM - 1, 0, 5),
+      getTileWithValue(0, COLS_NUM - 1, 5),
+    ];
+    const graph = new BoardGraph(startState);
+    const allocationStates: Map<string, TileAllocationStateT> = new Map();
+    const numbersMap = getNumbersMap(graph);
+    firstRun(graph, numbersMap, allocationStates);
+
+    const stateClasses = getAllocationStateClasses(allocationStates);
+    assertEquals(stateClasses.length, 2);
   }
 );
