@@ -259,9 +259,9 @@ export function execute(startTiles: ITile[]): IGraph {
   // Now we need to split tiles into classes.
   // Classification rule: all keys of undiscovered tiles
   // are different against all tiles in another class
-  const allocationStateClasses = getAllocationStateClasses(allocationStates);
+  const stateAllocationsToClasses = getAllocationStateClasses(allocationStates);
   // We can handle each class separately and concurrently
-  for (const stateClass of allocationStateClasses) {
+  for (const stateClass of stateAllocationsToClasses) {
     secondRun(graph, numbersMap, stateClass);
   }
   return graph;
@@ -394,7 +394,7 @@ export function secondRun(
  * - Get result areas and look for intersections over other areas.
  * - If area keys intersects another area, merge two areas.
  */
-function getAllocationStateClasses(
+export function getAllocationStateClasses(
   states: Map<string, TileAllocationStateT>
 ): TileStateClassesT {
   const keyFields: Set<string>[] = [];
