@@ -496,11 +496,14 @@ export function firstRun(
         });
       }
     } else if (undiscoveredAdjacents.length === 1) {
-      if (!numbersMap.keys().some((k) => k === _tile.value)) {
+      const numCountLeft = numbersMap.get(_tile.value);
+      if (numCountLeft === undefined || numCountLeft < 1) {
         throw handleError("stateNotFound");
       }
+      const foundNum = _tile.value;
+      numbersMap.set(foundNum, numCountLeft - 1);
       saveAndRequeue(undiscoveredAdjacents[0].key, {
-        number: _tile.value,
+        number: foundNum,
         discovered: true,
       });
     } else {
