@@ -6,7 +6,11 @@
 	path = permutations-all/snowhouse
 	url = https://github.com/banditcpp/snowhouse
 	branch = headers-only
-[submodule "sum-of-divided/snowhouse"]
-	path = sum-of-divided/snowhouse
+[submodule "prime-numbers/snowhouse"]
+	path = prime-numbers/snowhouse
+	url = https://github.com/banditcpp/snowhouse
+	branch = headers-only
+[submodule "number-partitions/snowhouse"]
+	path = number-partitions/snowhouse
 	url = https://github.com/banditcpp/snowhouse
 	branch = headers-only
