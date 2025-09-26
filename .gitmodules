@@ -14,3 +14,7 @@
 	path = number-partitions/snowhouse
 	url = https://github.com/banditcpp/snowhouse
 	branch = headers-only
+[submodule "number-decompose/snowhouse"]
+	path = number-decompose/snowhouse
+	url = https://github.com/banditcpp/snowhouse
+	branch = headers-only
