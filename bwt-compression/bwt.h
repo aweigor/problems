@@ -2,11 +2,13 @@
 
 #include <algorithm>
 #include <sstream>
+#include <stdexcept>
+#include <system_error>
 #include <vector>
 
 std::string bwt(std::string &s) 
 {
-  s += '^'; // add 'EOF' character
+  s += EOF; // add 'EOF' character
   // create a table, where the rows are all possible rotations of s
   std::vector<std::string> matrix{};
   std::string shift;
@@ -46,12 +48,10 @@ std::string inverse_bwt(std::string &s)
     }
   }
   // find row which eds with 'EOF' character
-  std::string result;
   for (auto &row: matrix) {
-    if (row.back() == '^') {
-      result = row;
-      break;
-    }
+    if (row.back() != EOF)
+      continue;
+    return row;
   }
-  return result; 
+  throw std::logic_error("unexpected error");
 }
