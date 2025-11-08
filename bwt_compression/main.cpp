@@ -1,12 +1,13 @@
 #include "../snowhouse/snowhouse.h"
 #include "bwt.h"
+#include "bwt_nosent.h"
 #include <vector>
 #include <string>
 #include <iostream>
 
 using namespace snowhouse;
 
-void test1() {
+void testSentinel() {
   std::string rawText = "bananabar";
   std::string expectedResult = "nnbbraaaa";
   std::string encoded = bwt(rawText);
@@ -20,7 +21,21 @@ void test1() {
 
 }
 
+void testNoSentinel() {
+  std::string rawText = "bananabar";
+  std::string expectedResult = "nnbbraaaa";
+  auto encoded = encode(rawText);
+  std::string decoded = decode(encoded.first, encoded.second);
+  
+  std::cout << "encoded: " << encoded.first << "\n";
+  std::cout << "decoded: " << decoded << "\n";
+
+  AssertThat(encoded.first, Is().EqualTo(expectedResult));
+  AssertThat(decoded, Is().EqualTo(rawText));
+
+}
+
 int main(int argc, char **argv)
 {
-  test1();
+  testNoSentinel();
 }
