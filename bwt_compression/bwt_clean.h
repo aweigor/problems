@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-std::pair<std::string, int> encode(const std::string& s) {
+std::pair<std::string, int> encode_clean(const std::string& s) {
   std::vector<std::string> v;
   for (int i = 0; i < s.length(); i++) {
     v.push_back(s.substr(s.length() - i, i) + s.substr(0, s.length() - i));
@@ -20,7 +20,7 @@ std::pair<std::string, int> encode(const std::string& s) {
   return std::make_pair(str, r);
 }
 
-std::string decode(const std::string& s, int n) {
+std::string decode_clean(const std::string& s, int n) {
   if (s == "") 
     return "";
   

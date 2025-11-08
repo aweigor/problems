@@ -33,6 +33,32 @@ void testNoSentinel() {
   AssertThat(encoded.first, Is().EqualTo(expectedResult));
   AssertThat(decoded, Is().EqualTo(rawText));
 
+
+  rawText = "Humble Bundle";
+  expectedResult = "e emnllbduuHB";
+  encoded = encode(rawText);
+  decoded = decode(encoded.first, encoded.second);
+  
+  std::cout << "encoded: " << encoded.first << "\n";
+  std::cout << "decoded: " << decoded << "\n";
+
+  AssertThat(encoded.first, Is().EqualTo(expectedResult));
+  AssertThat(decoded, Is().EqualTo(rawText));
+
+
+  rawText = "Mellow Yellow";
+  expectedResult = "ww MYeelllloo";
+  encoded = encode(rawText);
+  decoded = decode(encoded.first, encoded.second);
+  
+  std::cout << "encoded: " << encoded.first << "\n";
+  std::cout << "decoded: " << decoded << "\n";
+
+  AssertThat(encoded.first, Is().EqualTo(expectedResult));
+  AssertThat(decoded, Is().EqualTo(rawText));
+
+  std::cout << "Test OK" << "\n";
+
 }
 
 int main(int argc, char **argv)

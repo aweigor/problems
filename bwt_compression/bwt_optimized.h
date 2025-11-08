@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-std::pair<std::string, int> encode(const std::string& s) {
+std::pair<std::string, int> encode_optimized(const std::string& s) {
   std::vector<int> order(s.size());
   for (auto i = 0; i < s.size(); i ++) order[i] = i;
   
@@ -30,7 +30,7 @@ std::pair<std::string, int> encode(const std::string& s) {
   return {result, number};
 }
 
-std::string decode(const std::string& s, int n) {
+std::string decode_optimized(const std::string& s, int n) {
   std::string order = s;
   std::sort(order.begin(), order.end());
   
