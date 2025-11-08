@@ -5,53 +5,61 @@
 #include <stdexcept>
 #include <system_error>
 #include <vector>
+#include <iostream>
 
-std::string bwt(std::string &s) 
+std::string bwt(const std::string &s) 
 {
-  s += EOF; // add 'EOF' character
-  // create a table, where the rows are all possible rotations of s
+  const char SENTINEL = '$'; // use $ as sentinel (lexicographically smallest)
+  std::string input = s + SENTINEL; // add sentinel character
+  // create a table, where the rows are all possible rotations of input
   std::vector<std::string> matrix{};
-  std::string shift;
-  for (int i = 0; i < s.size(); i++) {
-    shift = s;
-    std::rotate(shift.begin(), shift.begin() + i, s.end());
+  for (size_t i = 0; i < input.size(); i++) {
+    std::string shift = input;
+    std::rotate(shift.begin(), shift.begin() + i, shift.end());
     matrix.push_back(shift);
   }
   // sort rows alphabetically
-  for (auto i = matrix.begin(); i != matrix.end(); ++i) {
-    std::rotate(std::upper_bound(matrix.begin(), i, *i), i, i + 1);
-  }
-  // return last column of the table
+  std::sort(matrix.begin(), matrix.end());
+  // return last column of the table (excluding sentinel from output)
   std::stringstream ss;
-  for (auto i = matrix.begin(); i != matrix.end(); ++i) {
-    ss << i->back();
+  for (const auto &row : matrix) {
+    char lastChar = row.back();
+    if (true) {
+      ss << lastChar;
+    }
   }
+  std::cout << ss.str() << "\n";
   return ss.str();
 }
 
-std::string inverse_bwt(std::string &s)
+std::string inverse_bwt(const std::string &s)
 {
-  // create empty table
-  std::vector<std::string> matrix{};
-  // fill table with first letters of bwt string 
-  for (auto &c: s) {
-    matrix.push_back(std::string(1, c));
-  }
-  for (int i = 0; i < s.size(); ++i) {
-    // sort rows alphabetically
-    for (auto k = matrix.begin(); k != matrix.end(); ++k) {
-      std::rotate(std::upper_bound(matrix.begin(), k, *k), k, k + 1);
+    int n = s.size();
+    
+    // Start with empty strings
+    std::vector<std::string> table(n, "");
+    
+    // Reconstruct by repeatedly:
+    // 1. Prepend the BWT column to each string
+    // 2. Sort lexicographically
+    for (int i = 0; i < n; i++) {
+        // Prepend BWT characters
+        for (int j = 0; j < n; j++) {
+            table[j] = s[j] + table[j];
+        }
+        // Sort
+        std::sort(table.begin(), table.end());
     }
-    // update table with first letters of bwt string;
-    for (int j = 0; j < s.size(); ++j) {
-      matrix[j] = s[j] + matrix[j];
+    
+    // Find the row that ends with '$' - that's our original string
+    for (const auto& row : table) {
+        if (!row.empty() && row.back() == '$') {
+            // Remove the '$' at the end before returning
+            return row.substr(0, row.size() - 1);
+        }
     }
-  }
-  // find row which eds with 'EOF' character
-  for (auto &row: matrix) {
-    if (row.back() != EOF)
-      continue;
-    return row;
-  }
-  throw std::logic_error("unexpected error");
+    
+    throw std::logic_error("Original string not found");
 }
+
+

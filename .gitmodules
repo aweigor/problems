@@ -2,3 +2,7 @@
 	path = snowhouse
 	url = https://github.com/banditcpp/snowhouse
 	branch = headers-only
+[submodule "bwt_compression/snowhouse"]
+	path = bwt_compression/snowhouse
+	url = https://github.com/banditcpp/snowhouse
+	branch = headers-only

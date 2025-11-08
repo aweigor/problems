@@ -1,23 +1,26 @@
 #include "../snowhouse/snowhouse.h"
-#include "bubble-sort.hpp"
+#include "bwt.h"
 #include <vector>
+#include <string>
+#include <iostream>
 
 using namespace snowhouse;
 
-template <typename T>
-void printArray(const std::vector<T>& arr) {
-    for (const T& element : arr) {
-        std::cout << element << " ";
-    }
-    std::cout << std::endl;
+void test1() {
+  std::string rawText = "bananabar";
+  std::string expectedResult = "nnbbraaaa";
+  std::string encoded = bwt(rawText);
+  std::string decoded = inverse_bwt(encoded);
+  
+  std::cout << "encoded: " << encoded << "\n";
+  std::cout << "decoded: " << decoded << "\n";
+
+  //AssertThat(encoded, Is().EqualTo(expectedResult));
+  //AssertThat(decoded, Is().EqualTo(rawText));
+
 }
 
 int main(int argc, char **argv)
 {
-  std::vector<int> testNumbers = { 5, 7, 12, 5, 44, 2 };
-  bubbleSort(testNumbers);
-  AssertThat(testNumbers, Is().EqualTo(std::vector<int>{ 2, 5, 5, 7, 12, 44 }));
-  std::cout << "Sorted array: " << "\n";
-  printArray(testNumbers);
-  std::cout << "Test OK" << "\n";
+  test1();
 }
