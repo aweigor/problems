@@ -16,9 +16,8 @@ void testSentinel() {
   std::cout << "encoded: " << encoded << "\n";
   std::cout << "decoded: " << decoded << "\n";
 
-  //AssertThat(encoded, Is().EqualTo(expectedResult));
-  //AssertThat(decoded, Is().EqualTo(rawText));
-
+  AssertThat(encoded, Is().EqualTo(expectedResult));
+  AssertThat(decoded, Is().EqualTo(rawText));
 }
 
 void testNoSentinel() {
