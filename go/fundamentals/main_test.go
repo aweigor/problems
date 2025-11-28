@@ -1,6 +1,7 @@
 package main
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -57,6 +58,14 @@ func TestDecodeRoman(t *testing.T) {
     result := DecodeRoman("MDCLXVI")
     expected := 1666
     if result != expected {
+        t.Errorf("Values mismatch: got %c, want %c", result, expected)
+    }
+}
+
+func TestParseDeadfish(t *testing.T) {
+    result := ParseDeadfish("isoisoiso")
+    expected := []int{1, 5 , 25}
+    if !reflect.DeepEqual(result, expected) {
         t.Errorf("Values mismatch: got %c, want %c", result, expected)
     }
 }

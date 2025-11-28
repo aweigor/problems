@@ -149,6 +149,21 @@ func DecodeRoman_recursive(roman string) int {
 	return first + DecodeRoman_recursive(roman[1:])
 }
 
+func ParseDeadfish(data string) []int {
+	argv := 0
+	var out []int
+	for _, command := range data {
+		switch command {
+		default: continue
+		case 'i': argv++
+		case 'd': argv--
+		case 's': argv *= argv
+		case 'o': out = append(out, argv)
+		}
+	}
+	return out
+}
+
 func main() {
 	result := Tribonacci([3]float64{1, 1, 1}, 10)
   fmt.Println("Tribonacci:", result)
@@ -162,4 +177,6 @@ func main() {
 	fmt.Println("DecodeRoman:", result5)
 	result6 := DecodeRoman_recursive("IIV")
 	fmt.Println("DecodeRoman:", result6)
+	result7 := ParseDeadfish("isoisoiso")
+	fmt.Println("ParseDeadfish:", result7)
 }
