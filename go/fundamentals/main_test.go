@@ -64,8 +64,16 @@ func TestDecodeRoman(t *testing.T) {
 
 func TestParseDeadfish(t *testing.T) {
     result := ParseDeadfish("isoisoiso")
-    expected := []int{1, 5 , 25}
+    expected := []int{1, 4, 25}
     if !reflect.DeepEqual(result, expected) {
         t.Errorf("Values mismatch: got %c, want %c", result, expected)
+    }
+}
+
+func TestFindOdd(t *testing.T) {
+    result := FindOdd([]int{20,1,-1,2,-2,3,3,5,5,1,2,4,20,4,-1,-2,5})
+    expected := 5
+    if result != expected {
+        t.Errorf("Values mismatch: got %d, want %d", result, expected)
     }
 }

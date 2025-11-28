@@ -164,6 +164,34 @@ func ParseDeadfish(data string) []int {
 	return out
 }
 
+// https://www.codewars.com/kata/54da5a58ea159efa38000836/
+func FindOdd(seq []int) int {
+	counts := map[int]int {}
+	for _, num := range seq {
+		_, exists := counts[num]
+		if exists {
+			counts[num]++
+		} else {
+			counts[num] = 1
+		}
+	}
+	for key, value := range counts {
+		if value%2 != 0 {
+			return key
+		}
+	}
+	
+	return 0
+}
+
+func FindOdd_clean(seq []int) int {
+	res := 0
+	for _, x := range seq {
+			res ^= x
+	}
+	return res
+}
+
 func main() {
 	result := Tribonacci([3]float64{1, 1, 1}, 10)
   fmt.Println("Tribonacci:", result)
@@ -179,4 +207,6 @@ func main() {
 	fmt.Println("DecodeRoman:", result6)
 	result7 := ParseDeadfish("isoisoiso")
 	fmt.Println("ParseDeadfish:", result7)
+	result8 := FindOdd([]int{20,1,-1,2,-2,3,3,5,5,1,2,4,20,4,-1,-2,5})
+	fmt.Println("FindOdd:", result8)
 }
