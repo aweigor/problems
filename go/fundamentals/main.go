@@ -139,6 +139,7 @@ func DecodeRoman(roman string) int {
 	return sum
 }
 
+// implementation is easy to understand, but actually wrong
 func DecodeRoman_recursive(roman string) int {
 	if len(roman) == 0 { return 0 }
 	first := decoder[rune(roman[0])]
