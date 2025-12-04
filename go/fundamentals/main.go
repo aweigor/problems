@@ -362,6 +362,26 @@ func HumanReadableTime_clean(s int) string {
 	return fmt.Sprintf("%02d:%02d:%02d", h, m, s)
 }
 
+// https://www.codewars.com/kata/559a28007caad2ac4e000083
+func Perimeter(n int) int {
+	p1, p2, sum := 1, 1, 1
+	for i := 0; i < n; i++ {
+		p2 = p1 + p2
+		p1 = p2 - p1
+		sum += p1
+		fmt.Println(sum)
+	}
+	return sum * 4
+}
+
+func Perimeter_clean(n int) int {
+	a, b := 1, 1
+	for i := 0; i < n; i++ {
+		a, b = b, a+b
+	}
+	return 4 * (a + b - 1)
+}
+
 func main() {
 	result := Tribonacci([3]float64{1, 1, 1}, 10)
 	fmt.Println("Tribonacci:", result)
@@ -396,4 +416,6 @@ func main() {
 	fmt.Println("TicTacToeChecker:", result13)
 	result14 := HumanReadableTime(3599)
 	fmt.Println("HumanReadableTime:", result14)
+	result15 := Perimeter(5)
+	fmt.Println("Perimeter:", result15)
 }
