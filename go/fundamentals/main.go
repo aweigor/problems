@@ -348,6 +348,20 @@ func TicTacToeChecker(board [3][3]int) int {
 	return 0
 }
 
+// https://www.codewars.com/kata/52685f7382004e774f0001f7
+func HumanReadableTime(seconds int) string {
+	hours := seconds / (60 * 60)
+	minutes := (seconds - (hours * 60 * 60)) / 60
+	seconds_remain := seconds - hours*60*60 - minutes*60
+	return fmt.Sprintf("%02d:%02d:%02d", hours, minutes, seconds_remain)
+}
+
+func HumanReadableTime_clean(s int) string {
+	m, s := s/60, s%60
+	h, m := m/60, m%60
+	return fmt.Sprintf("%02d:%02d:%02d", h, m, s)
+}
+
 func main() {
 	result := Tribonacci([3]float64{1, 1, 1}, 10)
 	fmt.Println("Tribonacci:", result)
@@ -380,4 +394,6 @@ func main() {
 	}
 	result13 := TicTacToeChecker(board)
 	fmt.Println("TicTacToeChecker:", result13)
+	result14 := HumanReadableTime(3599)
+	fmt.Println("HumanReadableTime:", result14)
 }
