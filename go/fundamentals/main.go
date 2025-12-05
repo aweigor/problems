@@ -297,6 +297,24 @@ func MaximumSubarraySum(numbers []int) int {
 	return maxSum
 }
 
+func ss_max(a, b int) int {
+	if a > b {
+		return a
+	} else {
+		return b
+	}
+}
+
+func MaximumSubarraySum_clean(numbers []int) int {
+	res, sum := 0, 0
+	for i := range numbers {
+		sum += numbers[i]
+		res = ss_max(res, sum)
+		sum = ss_max(sum, 0)
+	}
+	return res
+}
+
 // https://www.codewars.com/kata/5ce399e0047a45001c853c2b/
 func PartsSums(ls []uint64) []uint64 {
 	res := []uint64{0}
