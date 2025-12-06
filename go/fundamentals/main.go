@@ -400,6 +400,61 @@ func Perimeter_clean(n int) int {
 	return 4 * (a + b - 1)
 }
 
+// https://www.codewars.com/kata/51e04f6b544cf3f6550000c1/
+func Beeramid(bonus int, price float64) int {
+	beeramid_level, beer_count := 0, 0
+	for {
+		beer_count += (beeramid_level + 1) * (beeramid_level + 1)
+		if float64(beer_count)*price > float64(bonus) {
+			break
+		}
+		beeramid_level++
+	}
+	return beeramid_level
+}
+
+// https://www.codewars.com/kata/55983863da40caa2c900004e
+func NextBigger(n int) int {
+	dec := []int{}
+	r := n
+	for r > 0 {
+		num := r % 10
+		r = r / 10
+		if len(dec) > 0 {
+			i := len(dec) - 1
+			last := dec[i]
+			if num < last {
+				dec[i] = num
+				dec = append(dec, last)
+				for i > 0 && dec[i] > dec[i-1] {
+					dec[i], dec[i-1] = dec[i-1], dec[i]
+				}
+				// add remain and quit
+				for r > 0 {
+					num := r % 10
+					dec = append(dec, num)
+					r = r / 10
+				}
+				break
+			} else {
+				dec = append(dec, num)
+			}
+		} else {
+			dec = append(dec, num)
+		}
+	}
+
+	for i := len(dec) - 1; i >= 0; i-- {
+		r += dec[i] * int(math.Pow10(i))
+	}
+
+	if r == n {
+		return -1
+	}
+
+	return r
+}
+
 func main() {
 	result := Tribonacci([3]float64{1, 1, 1}, 10)
 	fmt.Println("Tribonacci:", result)
@@ -436,4 +491,8 @@ func main() {
 	fmt.Println("HumanReadableTime:", result14)
 	result15 := Perimeter(5)
 	fmt.Println("Perimeter:", result15)
+	retult16 := Beeramid(9, 2.0)
+	fmt.Println("Beeramid:", retult16)
+	retult17 := NextBigger(1234567890)
+	fmt.Println("NextBigger:", retult17) // 59884848459853:59884848483559
 }
