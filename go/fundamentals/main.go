@@ -6,6 +6,7 @@ import (
 	"math"
 	"net"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -414,45 +415,72 @@ func Beeramid(bonus int, price float64) int {
 }
 
 // https://www.codewars.com/kata/55983863da40caa2c900004e
+
 func NextBigger(n int) int {
-	dec := []int{}
-	r := n
-	for r > 0 {
-		num := r % 10
-		r = r / 10
-		if len(dec) > 0 {
-			i := len(dec) - 1
-			last := dec[i]
-			if num < last {
-				dec[i] = num
-				dec = append(dec, last)
-				for i > 0 && dec[i] > dec[i-1] {
-					dec[i], dec[i-1] = dec[i-1], dec[i]
-				}
-				// add remain and quit
-				for r > 0 {
-					num := r % 10
-					dec = append(dec, num)
-					r = r / 10
-				}
-				break
-			} else {
-				dec = append(dec, num)
+	nums := []int{}
+	nc := n
+	for nc > 0 {
+		nums = append(nums, nc%10)
+		nc /= 10
+	}
+	for i := 1; i < len(nums); i++ {
+		min := 10
+		min_index := -1 // nearest larger
+		for j := 0; j < i; j++ {
+			if nums[j] > nums[i] && nums[j] < min {
+				min = nums[j]
+				min_index = j
 			}
-		} else {
-			dec = append(dec, num)
+		}
+		if min == 10 {
+			continue
+		}
+		nums[min_index], nums[i] = nums[i], nums[min_index]
+		// sink, sort
+		for j := min_index; j >= 0; j-- {
+			for k := j + 1; k < i; k++ {
+				if nums[k] > nums[k-1] {
+					nums[k], nums[k-1] = nums[k-1], nums[k]
+				}
+			}
+		}
+		// to number
+		var maybe_bigger int
+		for i := 0; i < len(nums); i++ {
+			maybe_bigger += nums[i] * int(math.Pow10(i))
+		}
+		if maybe_bigger > n {
+			return maybe_bigger
+		}
+	}
+	return -1
+}
+
+// biboon's solution
+func NextBigger_clean(n int) int {
+	digits := make([]int, 0, 8)
+
+	for n > 10 {
+		digits = append(digits, n%10)
+		sort.Ints(digits)
+		n /= 10
+
+		for i, digit := range digits {
+			if digit > n%10 {
+				digits[i] = n % 10
+				sort.Ints(digits)
+
+				n += digit - n%10
+				for _, d := range digits {
+					n = n*10 + d
+				}
+
+				return n
+			}
 		}
 	}
 
-	for i := len(dec) - 1; i >= 0; i-- {
-		r += dec[i] * int(math.Pow10(i))
-	}
-
-	if r == n {
-		return -1
-	}
-
-	return r
+	return -1
 }
 
 func main() {
@@ -493,6 +521,6 @@ func main() {
 	fmt.Println("Perimeter:", result15)
 	retult16 := Beeramid(9, 2.0)
 	fmt.Println("Beeramid:", retult16)
-	retult17 := NextBigger(1234567890)
+	retult17 := NextBigger(144)
 	fmt.Println("NextBigger:", retult17) // 59884848459853:59884848483559
 }
