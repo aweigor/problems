@@ -415,7 +415,6 @@ func Beeramid(bonus int, price float64) int {
 }
 
 // https://www.codewars.com/kata/55983863da40caa2c900004e
-
 func NextBigger(n int) int {
 	nums := []int{}
 	nc := n
@@ -432,7 +431,8 @@ func NextBigger(n int) int {
 				min_index = j
 			}
 		}
-		if min == 10 {
+		if min_index == -1 {
+			// cannot make larger in this position, skip
 			continue
 		}
 		nums[min_index], nums[i] = nums[i], nums[min_index]
@@ -483,6 +483,17 @@ func NextBigger_clean(n int) int {
 	return -1
 }
 
+// https://www.codewars.com/kata/514b92a657cdc65150000006
+func Multiple3And5(n int) int {
+	sum := 0
+	for i := 1; i < n; i++ {
+		if (i%3 == 0) || (i%5 == 0) {
+			sum += i
+		}
+	}
+	return sum
+}
+
 func main() {
 	result := Tribonacci([3]float64{1, 1, 1}, 10)
 	fmt.Println("Tribonacci:", result)
@@ -522,5 +533,5 @@ func main() {
 	retult16 := Beeramid(9, 2.0)
 	fmt.Println("Beeramid:", retult16)
 	retult17 := NextBigger(144)
-	fmt.Println("NextBigger:", retult17) // 59884848459853:59884848483559
+	fmt.Println("NextBigger:", retult17)
 }
