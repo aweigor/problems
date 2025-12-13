@@ -494,6 +494,18 @@ func Multiple3And5(n int) int {
 	return sum
 }
 
+// https://www.codewars.com/kata/546d5028ddbcbd4b8d001254
+func Partitions(n int) int {
+	arr := make([]int, n+1)
+	arr[0] = 1
+	for i := 1; i < n+1; i++ {
+		for j := i; j < n+1; j++ {
+			arr[j] += arr[j-i]
+		}
+	}
+	return arr[n]
+}
+
 func main() {
 	result := Tribonacci([3]float64{1, 1, 1}, 10)
 	fmt.Println("Tribonacci:", result)
