@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"math"
@@ -504,6 +505,25 @@ func Partitions(n int) int {
 		}
 	}
 	return arr[n]
+}
+
+// https://www.codewars.com/kata/517abf86da9663f1d2000003
+func ToCamelCase(s string) string {
+	var buffer bytes.Buffer
+	isUpper := false
+	for _, ch := range s {
+		if !isUpper {
+			if ch == '_' || ch == '-' {
+				isUpper = true
+				continue
+			}
+			buffer.WriteRune(ch)
+		} else {
+			buffer.WriteString(strings.ToUpper(string(ch)))
+			isUpper = false
+		}
+	}
+	return buffer.String()
 }
 
 func main() {
