@@ -1,6 +1,7 @@
 # https://www.codewars.com/kata/568ff914fc7a40a18500005c
 import ipaddress
 import math
+import string
 from numpy import mean
 from ipaddress import IPv4Address
 
@@ -132,6 +133,20 @@ def get_vowels(s):
 
 def get_vowels__minimal(s):
     return sum(c in 'aeiou' for c in s)
+
+# https://www.codewars.com/kata/554e4a2f232cdd87d9000038
+def DNA_strand(dna):
+    return ''.join(
+        'A' if char == 'T' else
+        'T' if char == 'A' else
+        'C' if char == 'G' else
+        'G' if char == 'C' else None
+        for char in dna
+    )
+
+def DNA_strand__builtin(dna):
+    return dna.translate(string.maketrans("ATCG","TAGC"))
+
 
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
