@@ -164,6 +164,36 @@ def cakes(recipe, available):
 def cakes__minimal(recipe, available):
     return min(available.get(k, 0) / recipe[k] for k in recipe)
 
+# https://www.codewars.com/kata/5279f6fe5ab7f447890006a7
+def pick_peaks(arr):
+    pos = []
+    peaks = []
+    for i in range(1, len(arr) - 1):
+        if arr[i-1] == arr[i]:
+            continue
+        left = arr[i-1]
+        j = i
+        while j < len(arr) - 1 and arr[j] == arr[j + 1]:
+            j += 1
+        if j == len(arr) - 1:
+            continue
+        right = arr[j + 1]
+        if arr[i] > left and arr[i] > right:
+            pos.append(i)
+            peaks.append(arr[i])
+    return { "pos": pos, "peaks": peaks }
+
+def pick_peaks__clean(arr):
+    pos = []
+    prob_peak = False
+    for i in range(1, len(arr)):
+        if arr[i] > arr[i - 1]:
+            prob_peak = i
+        elif arr[i] < arr[i - 1] and prob_peak:
+            pos.append(prob_peak)
+            prob_peak = False
+    return {'pos': pos, 'peaks': [arr[i] for i in pos]}
+
 
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
