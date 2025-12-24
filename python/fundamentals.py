@@ -152,7 +152,17 @@ def high_and_low(numbers):
     nums = [int(num) for num in numbers.split(' ')]
     return f"{max(nums)} {min(nums)}"
 
+def cakes(recipe, available):
+    max = None
+    for ing in recipe:
+        if available.get(ing) is None:
+            return 0
+        if max is None or available[ing] // recipe[ing] < max:
+            max = available[ing] // recipe[ing]
+    return max
 
+def cakes__minimal(recipe, available):
+    return min(available.get(k, 0) / recipe[k] for k in recipe)
 
 
 def run_tests():
