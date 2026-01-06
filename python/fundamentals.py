@@ -134,6 +134,7 @@ def get_vowels(s):
 def get_vowels__minimal(s):
     return sum(c in 'aeiou' for c in s)
 
+<<<<<<< Updated upstream
 # https://www.codewars.com/kata/554e4a2f232cdd87d9000038
 def DNA_strand(dna):
     return ''.join(
@@ -194,6 +195,18 @@ def pick_peaks__clean(arr):
             prob_peak = False
     return {'pos': pos, 'peaks': [arr[i] for i in pos]}
 
+# https://www.codewars.com/kata/55bf01e5a717a0d57e0000ec/train/python
+def persistence(n):
+    i = 0
+    while n // 10 > 0:
+        t = 1
+        while n // 10 > 0:
+            t *= n % 10
+            n = n // 10
+        t *= n
+        n = t
+        i += 1
+    return i
 
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
@@ -201,6 +214,8 @@ def run_tests():
     result = to_underscore('ThisIsBeautifulDay')
     print(result)
     result = valid_ISBN10('1112223339')
+    print(result)
+    result = persistence(39)
     print(result)
 
 
