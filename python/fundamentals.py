@@ -134,7 +134,6 @@ def get_vowels(s):
 def get_vowels__minimal(s):
     return sum(c in 'aeiou' for c in s)
 
-<<<<<<< Updated upstream
 # https://www.codewars.com/kata/554e4a2f232cdd87d9000038
 def DNA_strand(dna):
     return ''.join(
@@ -207,6 +206,30 @@ def persistence(n):
         n = t
         i += 1
     return i
+
+# https://www.codewars.com/kata/585d7d5adb20cf33cb000235
+def find_uniq(arr):
+    if arr[0] != arr[1]:
+        if arr[0] != arr[len(arr) - 1]:
+            return arr[0]
+        return arr[1]
+    for i in range(2, len(arr)):
+        if arr[i] != arr[i - 1]:
+            return arr[i]
+    return None
+
+
+def find_uniq_clean(arr):
+    culprit = arr[1]
+    if arr[0] == arr[2]:
+        culprit = arr[0]
+    for i in arr:
+        if i != culprit:
+            return i
+
+def find_uniq_minimal(arr):
+    a, b = set(arr)
+    return a if arr.count(a) == 1 else b
 
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
