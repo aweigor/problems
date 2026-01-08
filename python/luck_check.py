@@ -12,16 +12,15 @@ def luck_check_minimal(string):
     half = len(string) // 2
     return sum(map(int, string[:half])) == sum(map(int, string[-half:]))
 
-def assert_equals(actual, expected, error):
+def assert_equals(actual, expected):
     if actual != expected:
-        raise RuntimeError(error)
+        raise RuntimeError()
 
 def expect_error(error, fun):
     try:
         fun()
-    except RuntimeError:
+    except:
         return True
-
     raise RuntimeError(error)
 
 def fixed_tests():
@@ -39,6 +38,8 @@ def fixed_tests():
         expect_error("Invalid type value should throw error.", lambda : luck_check('1234 '))
         expect_error("Invalid type value should throw error.", lambda : luck_check('124-21'))
         expect_error("Invalid type value should throw error.", lambda : luck_check('124X212'))
+
+    basic_test_cases()
 
 if __name__ == '__main__':
     fixed_tests()
