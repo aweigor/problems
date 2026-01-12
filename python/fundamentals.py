@@ -231,6 +231,22 @@ def find_uniq_minimal(arr):
     a, b = set(arr)
     return a if arr.count(a) == 1 else b
 
+
+
+# https://www.codewars.com/kata/520b9d2ad5c005041100000f
+def pig_it(text):
+    result = []
+    for word in text.split():
+        if word.isalpha():
+            result.append(word[1:]+word[0]+"ay")
+        else:
+            result.append(word)
+    return " ".join(result)
+
+def pig_it(text):
+    lst = text.split()
+    return ' '.join( [word[1:] + word[:1] + 'ay' if word.isalpha() else word for word in lst])
+
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
     print(result)
@@ -240,7 +256,6 @@ def run_tests():
     print(result)
     result = persistence(39)
     print(result)
-
 
 if __name__ == '__main__':
     run_tests()
