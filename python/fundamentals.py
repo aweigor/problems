@@ -231,8 +231,6 @@ def find_uniq_minimal(arr):
     a, b = set(arr)
     return a if arr.count(a) == 1 else b
 
-
-
 # https://www.codewars.com/kata/520b9d2ad5c005041100000f
 def pig_it(text):
     result = []
@@ -250,6 +248,14 @@ def pig_it(text):
 # https://www.codewars.com/kata/5467e4d82edf8bbf40000155
 def descending_order(num):
     return int(''.join(sorted(str(num), reverse=True)))
+
+
+# https://www.codewars.com/kata/555086d53eac039a2a000083
+def lovefunc( flower1, flower2 ):
+    return (flower1 + flower2) % 2 == 1
+
+def lovefunc_binary( a, b ):
+    return (a ^ b) & 1
 
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
