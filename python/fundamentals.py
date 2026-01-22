@@ -299,6 +299,18 @@ def generate_hashtag(s):
         out += word.capitalize()
     return out
 
+# https://www.codewars.com/kata/55c6126177c9441a570000cc
+def order_weight(strng):
+    s = sorted(strng.split())
+    res = []
+    for w in s:
+        res.append(sum(int(c) for c in w.strip()))
+    inxs = sorted(range(len(res)), key=lambda i: res[i])
+    return ' '.join([s[i] for i in inxs])
+
+def order_weight_minimal(_str):
+    return ' '.join(sorted(sorted(_str.split(' ')), key=lambda x: sum(int(c) for c in x)))
+
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
     print(result)
@@ -309,6 +321,7 @@ def run_tests():
     result = persistence(39)
     print(result)
     print(descending_order(123444))
+    print(order_weight("103 123 4444 99 2000"))
 
 if __name__ == '__main__':
     run_tests()
