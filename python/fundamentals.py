@@ -311,6 +311,21 @@ def order_weight(strng):
 def order_weight_minimal(_str):
     return ' '.join(sorted(sorted(_str.split(' ')), key=lambda x: sum(int(c) for c in x)))
 
+# https://www.codewars.com/kata/55c04b4cc56a697bb0000048
+def scramble(s1, s2):
+    text = sorted(s1)
+    sample = sorted(s2)
+    p_sample = 0
+    for c in text:
+        if not sample:
+            return True
+        if c == sample[p_sample]:
+            if p_sample == len(sample) - 1:
+                return True
+            else:
+                p_sample += 1
+    return False
+
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
     print(result)
