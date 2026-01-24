@@ -355,6 +355,40 @@ def increment_string_minimal(strng):
     if tail == "": return strng+"1"
     return head + str(int(tail) + 1).zfill(len(tail))
 
+# https://www.codewars.com/kata/5270d0d18625160ada0000e4
+def greed_is_good(dice):
+    scores = { 1: 1000, 2: 200, 3: 300, 4: 400, 5: 500, 6: 600 }
+    cnt = Counter(dice)
+    total = 0
+    items = list(cnt.items())
+    for i, v in enumerate(items):
+        key = items[i][0]
+        val = items[i][1]
+        if val >= 3:
+            total += scores[key]
+            val -= 3
+        if key == 1:
+            total += val * 100
+        if key == 5:
+            total += val * 50
+    return total
+
+
+def greed_is_good_minimal(dice):
+    sum = 0
+    counter = [0, 0, 0, 0, 0, 0]
+    points = [1000, 200, 300, 400, 500, 600]
+    extra = [100, 0, 0, 0, 50, 0]
+    for die in dice:
+        counter[die - 1] += 1
+
+    for (i, count) in enumerate(counter):
+        sum += (points[i] if count >= 3 else 0) + extra[i] * (count % 3)
+
+    return sum
+
+
+
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
     print(result)
@@ -367,6 +401,7 @@ def run_tests():
     print(descending_order(123444))
     print(order_weight("103 123 4444 99 2000"))
     print(increment_string("[6074531754650710000819591"))
+    print(greed_is_good([2, 4, 4, 5, 4]))
 
 if __name__ == '__main__':
     run_tests()
