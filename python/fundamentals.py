@@ -387,7 +387,14 @@ def greed_is_good_minimal(dice):
 
     return sum
 
-
+# https://www.codewars.com/kata/52f787eb172a8b4ae1000a34
+def trailing_zeros_of_factorial(n):
+    z = 5
+    r = 0
+    while z < n:
+        r = r + n // z
+        z = z * 5
+    return r
 
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
@@ -402,6 +409,7 @@ def run_tests():
     print(order_weight("103 123 4444 99 2000"))
     print(increment_string("[6074531754650710000819591"))
     print(greed_is_good([2, 4, 4, 5, 4]))
+    print(trailing_zeros_of_factorial(100))
 
 if __name__ == '__main__':
     run_tests()
