@@ -2,6 +2,8 @@
 import ipaddress
 import math
 import string
+from collections import Counter
+
 from numpy import mean
 from ipaddress import IPv4Address
 
@@ -257,6 +259,176 @@ def lovefunc( flower1, flower2 ):
 def lovefunc_binary( a, b ):
     return (a ^ b) & 1
 
+# https://www.codewars.com/kata/5601409514fc93442500010b
+def better_than_average(class_points, your_points):
+    return sum(class_points) / len(class_points) < your_points
+
+# https://www.codewars.com/kata/52bc74d4ac05d0945d00054e
+def first_non_repeating_letter(s):
+    uniques = []
+    removed = []
+    for c in s:
+        if any(c.lower() == u.lower() for u in uniques):
+            if c.lower() in uniques:
+                uniques.remove(c.lower())
+            else:
+                uniques.remove(c.upper())
+            removed.append(c.lower())
+        else:
+            if not c.lower() in removed:
+                uniques.append(c)
+    return '' if not uniques else uniques[0]
+
+def first_non_repeating_letter_minimal(string):
+    cnt = Counter(string.lower())
+    for letter in string:
+        if cnt[letter.lower()] == 1:
+            return letter
+    return ''
+
+# https://www.codewars.com/kata/52449b062fb80683ec000024
+def generate_hashtag(s):
+    if not s:
+        return False
+    l = 1
+    out = '#'
+    for word in s.split(' '):
+        l += len(word)
+        if l > 140:
+            return False
+        out += word.capitalize()
+    return out
+
+# https://www.codewars.com/kata/55c6126177c9441a570000cc
+def order_weight(strng):
+    s = sorted(strng.split())
+    res = []
+    for w in s:
+        res.append(sum(int(c) for c in w.strip()))
+    inxs = sorted(range(len(res)), key=lambda i: res[i])
+    return ' '.join([s[i] for i in inxs])
+
+def order_weight_minimal(_str):
+    return ' '.join(sorted(sorted(_str.split(' ')), key=lambda x: sum(int(c) for c in x)))
+
+# https://www.codewars.com/kata/55c04b4cc56a697bb0000048
+def scramble(s1, s2):
+    text = sorted(s1)
+    sample = sorted(s2)
+    p_sample = 0
+    for c in text:
+        if not sample:
+            return True
+        if c == sample[p_sample]:
+            if p_sample == len(sample) - 1:
+                return True
+            else:
+                p_sample += 1
+    return False
+
+# https://www.codewars.com/kata/54a91a4883a7de5d7800009c
+def increment_string(strng):
+    src = ''
+    numstr = ''
+    for i in range(len(strng) -1, -1, -1):
+        if not (strng[i]).isdecimal():
+            src = strng[:i+1]
+            break
+        numstr = strng[i] + numstr
+
+    if not numstr:
+        return strng + '1'
+
+    maxpos = len(numstr)
+    numout = str(int(numstr) + 1)
+    if maxpos == len(str(int(numstr))):
+        return src + numout
+
+    if len(numout) > maxpos:
+        return src + numout[-maxpos:]
+    else:
+        return src + numout.zfill(maxpos)
+
+def increment_string_minimal(strng):
+    head = strng.rstrip('0123456789')
+    tail = strng[len(head):]
+    if tail == "": return strng+"1"
+    return head + str(int(tail) + 1).zfill(len(tail))
+
+# https://www.codewars.com/kata/5270d0d18625160ada0000e4
+def greed_is_good(dice):
+    scores = { 1: 1000, 2: 200, 3: 300, 4: 400, 5: 500, 6: 600 }
+    cnt = Counter(dice)
+    total = 0
+    items = list(cnt.items())
+    for i, v in enumerate(items):
+        key = items[i][0]
+        val = items[i][1]
+        if val >= 3:
+            total += scores[key]
+            val -= 3
+        if key == 1:
+            total += val * 100
+        if key == 5:
+            total += val * 50
+    return total
+
+
+def greed_is_good_minimal(dice):
+    sum = 0
+    counter = [0, 0, 0, 0, 0, 0]
+    points = [1000, 200, 300, 400, 500, 600]
+    extra = [100, 0, 0, 0, 50, 0]
+    for die in dice:
+        counter[die - 1] += 1
+
+    for (i, count) in enumerate(counter):
+        sum += (points[i] if count >= 3 else 0) + extra[i] * (count % 3)
+
+    return sum
+
+# https://www.codewars.com/kata/52f787eb172a8b4ae1000a34
+def trailing_zeros_of_factorial(n):
+    z = 5
+    r = 0
+    while z < n:
+        r = r + n // z
+        z = z * 5
+    return r
+
+
+# https://www.codewars.com/kata/55aa075506463dac6600010d
+def list_squared(m, n):
+    res = []
+    for i in range(m, n + 1):
+        divisors = []
+        sqr = math.ceil(math.sqrt(i))
+        for j in range(1, sqr + 1):
+            if i % j == 0 and not j in divisors:
+                divisors.append(j)
+                if j * j != i:
+                    divisors.append(i // j)
+        if not divisors:
+            continue
+        squared_sum = sum([x**2 for x in divisors])
+        sqrt_of_squared = int(math.sqrt(squared_sum))
+        if sqrt_of_squared * sqrt_of_squared == squared_sum:
+            res.append([i, squared_sum])
+    return res
+
+def list_squared_minimal(m, n):
+    out = []
+    for i in range(m, n + 1):
+        # Finding all divisors below the square root of i
+        possibles = set([x for x in range(1, int(i ** 0.5) + 1) if i % x == 0])
+        # And adding their counterpart
+        possibles.update([i / x for x in possibles])
+        # Doubles in the possibles are solved due to the set
+        val = sum(x ** 2 for x in possibles)
+        # Checking for exact square
+        if (int(val ** 0.5)) ** 2 == val: out.append([i, val])
+    return out
+
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
     print(result)
@@ -267,6 +439,11 @@ def run_tests():
     result = persistence(39)
     print(result)
     print(descending_order(123444))
+    print(order_weight("103 123 4444 99 2000"))
+    print(increment_string("[6074531754650710000819591"))
+    print(greed_is_good([2, 4, 4, 5, 4]))
+    print(trailing_zeros_of_factorial(100))
+    print(list_squared(1, 250))
 
 if __name__ == '__main__':
     run_tests()
