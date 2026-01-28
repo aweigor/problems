@@ -12,8 +12,3 @@ def is_pangram(st):
     for ch in st:
         chs[ch.lower()] = 1
     return all(ch in chs for ch in alpha)
-
-if __name__ == '__main__':
-    assert rot13('test') == 'grfg'
-    assert rot13('Test') == 'Grfg'
-    assert rot13('aA bB zZ 1234 *!?%') == 'nN oO mM 1234 *!?%'
