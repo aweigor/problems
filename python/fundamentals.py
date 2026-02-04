@@ -536,6 +536,19 @@ def removNb_math(n):
             sol.append((a,int(b)))
     return sol
 
+# https://www.codewars.com/kata/54d4c8b08776e4ad92000835
+# Finding the Perfect power (n + m ^ k where m and k are integers)
+def isPP(n):
+    if n < 4:
+        return None
+    if n == 4:
+        return [2, 2]
+    for i in range (2, int(n ** 0.5) + 2):
+        test = round(n ** (1/i))
+        if test ** i == n:
+            return [test, i]
+    return None
+
 
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
@@ -557,6 +570,7 @@ def run_tests():
     print(choose_best_sum(163, 3, [50, 55, 56, 57, 58]))
     print(fibonacci(589))
     print(remov_nb(26))
+    print(isPP(125))
 
 if __name__ == '__main__':
     run_tests()
