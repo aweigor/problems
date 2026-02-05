@@ -550,6 +550,15 @@ def isPP(n):
     return None
 
 
+# https://www.codewars.com/kata/51edd51599a189fe7f000015
+# Finding difference betwen a and b (simple)
+def solution(array_a, array_b):
+    sum = 0
+    for i in range(len(array_a)):
+        sum += (array_b[i] - array_a[i]) ** 2
+    return sum / len(array_a)
+
+
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
     print(result)
