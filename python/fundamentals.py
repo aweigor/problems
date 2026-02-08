@@ -581,6 +581,14 @@ def convertFracts_minimal(lst):
     return [[D*n//d,D] for n,d in lst]
 
 
+# https://www.codewars.com/kata/5282b48bb70058e4c4000fa7
+def hex_string_to_RGB(hex_string):
+    hex_string = hex_string.lstrip('#')
+    r = int(hex_string[0:2], 16)
+    g = int(hex_string[2:4], 16)
+    b = int(hex_string[4:6], 16)
+    return {'r': r, 'g': g, 'b': b}
+
 
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
