@@ -590,6 +590,21 @@ def hex_string_to_RGB(hex_string):
     return {'r': r, 'g': g, 'b': b}
 
 
+# https://www.codewars.com/kata/54c9fcad28ec4c6e680011aa
+# check if part1 and part2 can be merged into s
+def is_merge(s, part1, part2):
+    if not part1:
+        return s == part2
+    if not part2:
+        return s == part1
+    if not s:
+        return part1 + part2 == ''
+    if s[0] == part1[0] and is_merge(s[1:], part1[1:], part2):
+        return True
+    if s[0] == part2[0] and is_merge(s[1:], part1, part2[1:]):
+        return True
+    return False
+
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
     print(result)
@@ -612,6 +627,7 @@ def run_tests():
     print(remov_nb(26))
     print(isPP(125))
     print(convert_fracts([[154, 260], [84, 260], [195, 260]]))
+
 
 if __name__ == '__main__':
     run_tests()
