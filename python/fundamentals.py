@@ -530,7 +530,7 @@ def removNb_math(n):
             sol.append((a,int(b)))
     return sol
 
-# https://www.codewars.com/kata/54d4c8b08776e4ad92000835
+# https://www.codewars.com/katachr/54d4c8b08776e4ad92000835
 # Finding the Perfect power (n + m ^ k where m and k are integers)
 def isPP(n):
     if n < 4:
@@ -605,6 +605,21 @@ def is_merge(s, part1, part2):
         return True
     return False
 
+
+# https://www.codewars.com/kata/57feb00f08d102352400026e
+# flap rotors, determine result
+def flap_display(lines, rotors):
+    a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ?!@#&()|<>.:=-+*/0123456789'
+    s = len(a)
+    r = []
+    for i, line in enumerate(lines):
+        line = list(line)
+        for j, ch in enumerate(line):
+            line[j:] = [a[(a.find(x) + rotors[i][j]) % s] for x in line[j:]]
+        r.append(''.join(line))
+    return r
+
+
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
     print(result)
@@ -627,6 +642,7 @@ def run_tests():
     print(remov_nb(26))
     print(isPP(125))
     print(convert_fracts([[154, 260], [84, 260], [195, 260]]))
+    print(flap_display(["CAT"], [[1, 13, 27]]))
 
 
 if __name__ == '__main__':
