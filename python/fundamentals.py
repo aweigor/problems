@@ -620,6 +620,15 @@ def flap_display(lines, rotors):
     return r
 
 
+# https://www.codewars.com/kata/555eded1ad94b00403000071/
+# sum of series, rounded string result
+def series_sum(n):
+    r = 0
+    for i in range(n):
+        r += 1 / (1 + 3 * i)
+    return f"{r:.2f}"
+
+
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
     print(result)
@@ -643,6 +652,7 @@ def run_tests():
     print(isPP(125))
     print(convert_fracts([[154, 260], [84, 260], [195, 260]]))
     print(flap_display(["CAT"], [[1, 13, 27]]))
+    print(series_sum(3))
 
 
 if __name__ == '__main__':
