@@ -650,6 +650,39 @@ def find_uniq(arr):
         if set(string.lower()) != majority_set:
             return string
 
+def land_perimeter_helper(arr):
+    p = 0
+    for line in arr:
+        prev = line[0]
+        # edges
+        if line[0] == 'X':
+            p += 1
+        if line[len(line) - 1] == 'X':
+            p += 1
+        for i in range(1, len(line)):
+            if prev != line[i]:
+                p += 1
+            prev = line[i]
+    return p
+
+
+# https://www.codewars.com/kata/5839c48f0cf94640a20001d3
+# Find lands perimeter based on sting map
+def land_perimeter(arr):
+    # input: [ 0xx00 ], where x is lands
+    # what we know is: continous ..xx.. = 2
+    # so we'll just compute horizontal lines first
+    # then we rotate map and compute horizontal lines again
+
+    # first loop
+    p = land_perimeter_helper(arr)
+    # transpose
+    t = [[arr[i][j] for i in range(len(arr))] for j in range(len(arr[0]))]
+    # second loop
+    p += land_perimeter_helper(t)
+
+    return p
+
 
 def run_tests():
     result = ips_between('10.0.0.0', '10.0.1.0')
@@ -680,6 +713,7 @@ def run_tests():
           [ [3, 2],
             [1, 1] ]))
     print(find_uniq([ 'Tom Marvolo Riddle', 'I am Lord Voldemort', 'Harry Potter' ]))
+    print(land_perimeter(["XOOXO", "XOOXO", "OOOXO", "XXOXO", "OXOOO"])) # 60
 
 if __name__ == '__main__':
     run_tests()
